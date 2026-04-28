@@ -1,0 +1,36 @@
+# WordPress
+wp-config-local.php
+wp-config-sample.php
+error_log
+debug.log
+*.log
+
+# DDEV local overrides
+.ddev/.gitignore
+.ddev/import-db/
+.ddev/sequelpro.spf
+.ddev/db_snapshots/
+
+# Node
+node_modules/
+npm-debug.log
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Uploads - committed intentionally for demo
+# wp-content/uploads is NOT gitignored
+
+# WP core cache
+wp-content/cache/
+wp-content/upgrade/
+
+# Composer
+vendor/

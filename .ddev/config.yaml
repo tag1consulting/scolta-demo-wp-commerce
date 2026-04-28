@@ -1,0 +1,16 @@
+name: terra-collecta
+type: wordpress
+php_version: "8.3"
+webserver_type: nginx-fpm
+router_http_port: "80"
+router_https_port: "443"
+mariadb_version: "10.11"
+docroot: ""
+timezone: America/New_York
+composer_version: "2"
+web_environment: []
+hooks:
+  post-start:
+    - exec-host: "[ -f db/dump.sql.gz ] && ddev import-db --file=db/dump.sql.gz --no-drop || true"
+    - exec: "wp option update siteurl 'https://terra-collecta.ddev.site' 2>/dev/null || true"
+    - exec: "wp option update home 'https://terra-collecta.ddev.site' 2>/dev/null || true"
