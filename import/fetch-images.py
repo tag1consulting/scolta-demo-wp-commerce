@@ -20,168 +20,260 @@ SOURCES_PATH = "import/image-sources.json"
 MAX_PX       = 600          # longest side
 JPEG_QUALITY = 72           # starting quality; reduced if still over size limit
 MAX_BYTES    = 50_000       # hard ceiling per image
-API_DELAY    = 1.5          # seconds between Wikimedia API calls
-MAX_RETRIES  = 5            # max retries on 429
+API_DELAY      = 2.0        # seconds between Wikimedia API calls
+DOWNLOAD_DELAY = 5.0        # extra pause before each image download
+MAX_RETRIES    = 5          # max retries on 429
+MAX_WAIT       = 30.0       # cap per-retry backoff at this many seconds
 WIKI_API     = "https://commons.wikimedia.org/w/api.php"
 USER_AGENT   = "TerraCollectaDemo/1.0 (tag1.com; scolta-demo) python-urllib"
 
 # ── Search-term overrides ─────────────────────────────────────────────────────
-# Maps base product name → better Wikimedia search query
+# Maps base product name → Wikimedia Commons search query (primary)
 SEARCH_TERMS = {
     # Minerals
-    "Amethyst Cluster":                 "amethyst geode crystal cluster",
-    "Rose Quartz Sphere":               "rose quartz crystal mineral",
-    "Citrine Crystal Point":            "citrine quartz crystal point",
-    "Smoky Quartz Elestial":            "smoky quartz crystal",
-    "Agate Slice":                      "agate slice polished botswana",
-    "Labradorite Freeform":             "labradorite feldspar iridescence",
-    "Moonstone with Adularescence":     "moonstone gemstone adularescence",
-    "Amazonite Crystal":                "amazonite feldspar crystal",
-    "Black Tourmaline Schorl Crystal":  "schorl tourmaline crystal black",
-    "Rubellite Tourmaline Crystal":     "rubellite tourmaline pink crystal",
-    "Indicolite Tourmaline":            "indicolite tourmaline blue crystal",
-    "Emerald Crystal in Matrix":        "emerald crystal beryl colombian",
-    "Aquamarine Crystal":               "aquamarine beryl crystal",
-    "Heliodor Crystal":                 "heliodor golden beryl crystal",
-    "Goshenite":                        "goshenite beryl white crystal",
-    "Grossular Garnet":                 "tsavorite grossular garnet crystal",
-    "Spessartine Garnet Crystal":       "spessartine garnet orange crystal",
-    "Rhodolite Garnet Crystal":         "rhodolite garnet crystal",
-    "Topaz":                            "topaz imperial crystal mineral",
-    "Blue Topaz Crystal":               "blue topaz crystal",
-    "Purple Fluorite Octahedron":       "fluorite octahedron purple crystal",
-    "Green Fluorite Cubic Cluster":     "fluorite green cubic crystal",
-    "Malachite Botryoidal Specimen":    "malachite botryoidal mineral",
-    "Azurite-Malachite Crystal Cluster":"azurite malachite mineral",
-    "Pyrite Cube Cluster":              "pyrite cube crystal navajun",
-    "Chalcopyrite Crystal on Sphalerite":"chalcopyrite iridescent mineral",
-    "Native Gold in Quartz Vein":       "native gold quartz vein mineral",
-    "Stibnite Crystal Group":           "stibnite crystal antimony mineral",
-    "Crocoite Crystal Cluster":         "crocoite crystal orange mineral",
-    "Vanadinite on Barite":             "vanadinite crystal red hexagonal",
-    "Wulfenite Crystal Plate":          "wulfenite crystal orange plate",
-    "Rhodochrosite Stalactite Slice":   "rhodochrosite stalactite slice",
-    "Selenite Gypsum Wand":             "selenite gypsum crystal clear",
-    "Desert Rose Barite":               "desert rose barite crystal",
-    "Celestite Geode":                  "celestite geode crystal blue",
-    "Calcite Dog-Tooth Cluster":        "calcite dogtooth crystal cluster",
-    "Iceland Spar":                     "iceland spar optical calcite",
-    "Apophyllite Crystal Cluster on Stilbite":"apophyllite stilbite crystal india",
-    "Rhodonite Specimen":               "rhodonite mineral pink",
-    "Dioptase Crystal Cluster":         "dioptase crystal green copper",
-    "Zircon Crystal in Pegmatite":      "zircon crystal mineral",
-    "Pyrrhotite Crystal":               "pyrrhotite crystal magnetic iron sulfide",
-    "Realgar Crystal on Orpiment":      "realgar orpiment crystal arsenic sulfide",
-    "Wollastonite Spray":               "wollastonite mineral calcium silicate",
-    "Staurolite Twin":                  "staurolite fairy stone twin crystal",
-    "Prehnite Stalactite":              "prehnite crystal green mineral",
-    "Kunzite Crystal":                  "kunzite spodumene pink crystal",
-    "Hiddenite Crystal":                "hiddenite green spodumene crystal",
-    "Benitoite Crystal on Natrolite":   "benitoite crystal blue natrolite",
-    "Tanzanite Crystal":                "tanzanite crystal unheated zoisite",
-    "Alexandrite Crystal":              "alexandrite color change chrysoberyl",
-    "Painite Crystal":                  "painite mineral rare crystal",
-    "Red Beryl Crystal":                "red beryl bixbite utah crystal",
-    "Euclase Crystal":                  "euclase crystal beryllium mineral",
-    "Fluorapatite Crystal":             "fluorapatite crystal hexagonal",
-    "Clinozoisite Crystal":             "clinozoisite crystal alpine",
-    "Manganite Crystal":                "manganite crystal mineral manganese",
-    "Native Silver Wires":              "native silver wire crystal kongsberg",
-    "Native Copper Arborescent":        "native copper arborescent michigan",
-    "Hematite Rose":                    "hematite rose iron mineral elba",
-    "Ilvaite Crystal":                  "ilvaite crystal mineral",
-    "Kyanite Crystal":                  "kyanite crystal blue mineral",
-    "Sillimanite Fibrous":              "sillimanite fibrolite mineral",
-    "Pyrite Cube Cluster":              "pyrite cube crystal",
+    "Amethyst Cluster":                  "amethyst geode crystal cluster",
+    "Rose Quartz Sphere":                "rose quartz crystal mineral",
+    "Citrine Crystal Point":             "citrine quartz crystal point",
+    "Smoky Quartz Elestial":             "smoky quartz skeletal elestial crystal",
+    "Agate Slice":                       "agate slice botswana polished",
+    "Labradorite Freeform":              "labradorite feldspar labradorescence",
+    "Moonstone with Adularescence":      "moonstone gemstone adularescence",
+    "Amazonite Crystal":                 "amazonite feldspar crystal",
+    "Black Tourmaline Schorl Crystal":   "schorl tourmaline crystal black",
+    "Rubellite Tourmaline Crystal":      "rubellite tourmaline pink crystal",
+    "Indicolite Tourmaline":             "indicolite tourmaline blue crystal",
+    "Emerald Crystal in Matrix":         "emerald crystal beryl colombian",
+    "Aquamarine Crystal":                "aquamarine beryl crystal",
+    "Heliodor Crystal":                  "heliodor golden beryl crystal",
+    "Goshenite":                         "goshenite beryl colorless crystal",
+    "Grossular Garnet":                  "grossular garnet green crystal",
+    "Spessartine Garnet Crystal":        "spessartine garnet orange crystal",
+    "Rhodolite Garnet Crystal":          "rhodolite garnet crystal",
+    "Topaz":                             "topaz crystal specimen mineral",
+    "Blue Topaz Crystal":                "blue topaz crystal",
+    "Purple Fluorite Octahedron":        "fluorite octahedron purple crystal",
+    "Green Fluorite Cubic Cluster":      "fluorite green cubic crystal",
+    "Malachite Botryoidal Specimen":     "malachite botryoidal mineral",
+    "Azurite-Malachite Crystal Cluster": "azurite malachite mineral",
+    "Pyrite Cube Cluster":               "pyrite cube crystal navajun",
+    "Chalcopyrite Crystal on Sphalerite":"chalcopyrite sphalerite iridescent mineral",
+    "Native Gold in Quartz Vein":        "native gold quartz vein mineral",
+    "Stibnite Crystal Group":            "stibnite crystal antimony mineral",
+    "Crocoite Crystal Cluster":          "crocoite crystal red orange",
+    "Vanadinite on Barite":              "vanadinite crystal red hexagonal",
+    "Wulfenite Crystal Plate":           "wulfenite crystal orange plate",
+    "Rhodochrosite Stalactite Slice":    "rhodochrosite stalactite argentina",
+    "Selenite Gypsum Wand":              "selenite gypsum crystal clear",
+    "Desert Rose Barite":                "desert rose barite crystal",
+    "Celestite Geode":                   "celestite geode crystal blue",
+    "Calcite Dog-Tooth Cluster":         "calcite dogtooth crystal cluster",
+    "Iceland Spar":                      "iceland spar optical calcite",
+    "Apophyllite Crystal Cluster on Stilbite": "apophyllite stilbite crystal india",
+    "Rhodonite Specimen":                "rhodonite mineral pink",
+    "Dioptase Crystal Cluster":          "dioptase crystal green copper",
+    "Zircon Crystal in Pegmatite":       "zircon crystal mineral",
+    "Pyrrhotite Crystal":                "pyrrhotite crystal magnetic iron sulfide",
+    "Realgar Crystal on Orpiment":       "realgar crystal red arsenic orpiment",
+    "Wollastonite Spray":                "wollastonite mineral calcium silicate",
+    "Staurolite Twin":                   "staurolite fairy stone twin crystal",
+    "Prehnite Stalactite":               "prehnite green botryoidal stalactite",
+    "Kunzite Crystal":                   "kunzite pink spodumene crystal",
+    "Hiddenite Crystal":                 "hiddenite green spodumene crystal",
+    "Benitoite Crystal on Natrolite":    "benitoite crystal blue",
+    "Tanzanite Crystal":                 "tanzanite zoisite crystal blue",
+    "Alexandrite Crystal":               "alexandrite color change chrysoberyl",
+    "Painite Crystal":                   "painite crystal myanmar mineral",
+    "Red Beryl Crystal":                 "red beryl bixbite utah crystal",
+    "Euclase Crystal":                   "euclase crystal beryllium mineral",
+    "Fluorapatite Crystal":              "apatite crystal hexagonal green",
+    "Clinozoisite Crystal":              "clinozoisite epidote crystal alpine",
+    "Manganite Crystal":                 "manganite crystal manganese mineral",
+    "Native Silver Wires":               "native silver wire kongsberg",
+    "Native Copper Arborescent":         "native copper arborescent dendritic",
+    "Hematite Rose":                     "iron rose hematite mineral",
+    "Ilvaite Crystal":                   "ilvaite crystal mineral",
+    "Kyanite Crystal":                   "kyanite blue blade crystal",
+    "Sillimanite Fibrous":               "sillimanite fibrolite mineral",
 
     # Gemstones
-    "Diamond Crystal":                  "diamond crystal rough octahedron",
-    "Ruby Crystal in Matrix":           "ruby crystal corundum red",
-    "Padparadscha Sapphire Crystal":    "padparadscha sapphire orange pink",
-    "Star Sapphire":                    "star sapphire cabochon asterism",
-    "Cat's Eye Chrysoberyl":            "cat eye chrysoberyl chatoyancy",
-    "Star Ruby":                        "star ruby cabochon asterism",
-    "Black Opal":                       "black opal lightning ridge",
-    "White Opal":                       "white opal harlequin",
-    "Fire Opal Crystal":                "fire opal mexico orange",
-    "Topaz":                            "topaz imperial orange crystal",
-    "Tsavorite Garnet Crystal":         "tsavorite garnet green crystal",
-    "Color-Change Garnet":              "color change garnet madagascar",
-    "Spinel Crystal":                   "spinel crystal red gemstone",
-    "Demantoid Garnet":                 "demantoid andradite garnet green",
-    "Paraíba Tourmaline":               "paraiba tourmaline neon blue copper",
-    "Sphene Crystal":                   "titanite sphene crystal yellow green",
-    "Kornerupine Crystal":              "kornerupine crystal mineral",
-    "Grandidierite Crystal":            "grandidierite crystal teal blue",
-    "Jeremejevite Crystal":             "jeremejevite crystal rare mineral",
-    "Amber with Insect Inclusion":      "amber insect inclusion fossil baltic",
+    "Diamond Crystal":                   "diamond crystal natural rough",
+    "Ruby Crystal in Matrix":            "ruby corundum red crystal matrix",
+    "Padparadscha Sapphire Crystal":     "padparadscha sapphire gemstone",
+    "Star Sapphire":                     "star sapphire cabochon asterism",
+    "Cat's Eye Chrysoberyl":             "cat eye chrysoberyl chatoyancy",
+    "Star Ruby":                         "star ruby cabochon asterism",
+    "Black Opal":                        "black opal lightning ridge",
+    "White Opal":                        "opal white precious gemstone",
+    "Fire Opal Crystal":                 "fire opal mexico orange",
+    "Tsavorite Garnet Crystal":          "tsavorite garnet green crystal",
+    "Color-Change Garnet":               "color change garnet alexandrite effect",
+    "Spinel Crystal":                    "spinel crystal red gemstone",
+    "Demantoid Garnet":                  "demantoid andradite garnet green",
+    "Paraíba Tourmaline":                "paraiba tourmaline blue copper",
+    "Sphene Crystal":                    "titanite sphene crystal yellow green",
+    "Kornerupine Crystal":               "Kornerupine mineral gemstone",
+    "Grandidierite Crystal":             "grandidierite teal blue mineral",
+    "Jeremejevite Crystal":              "jeremejevite crystal mineral",
+    "Amber with Insect Inclusion":       "amber insect inclusion fossil baltic",
     "Burmese Amber with Lizard Inclusion":"burmese amber cretaceous inclusion",
-    "Jet Carved Specimen":              "jet whitby carved black organic gem",
-    "Coral Specimen":                   "red coral specimen mediterranean",
-    "Rough Emerald Crystal":            "emerald crystal rough colombian beryl",
+    "Jet Carved Specimen":               "jet gemstone black organic whitby",
+    "Coral Specimen":                    "red coral branch specimen",
+    "Rough Emerald Crystal":             "emerald crystal rough colombian beryl",
 
     # Fossils
-    "Trilobite":                        "trilobite fossil phacops enrolled",
-    "Ammonite":                         "ammonite fossil polished section",
-    "Fish Fossil":                      "fish fossil green river formation",
-    "Mosasaur Tooth on Matrix":         "mosasaur tooth fossil cretaceous",
-    "Megalodon Tooth Replica":          "megalodon shark tooth fossil",
-    "Dinosaur Tooth":                   "dinosaur tooth fossil theropod",
-    "Insect in Amber":                  "insect amber fossil eocene",
-    "Spider in Amber":                  "spider amber burmese fossil",
-    "Fern Fossil":                      "fern fossil carboniferous mazon creek",
-    "Petrified Wood":                   "petrified wood silicified fossil",
-    "Sea Urchin":                       "sea urchin micraster fossil chalk",
-    "Crinoid Stem Section":             "crinoid stem fossil polished",
-    "Nautiloid":                        "orthoceras nautiloid fossil polished",
-    "Trace Fossil":                     "dinosaur footprint trace fossil",
-    "Coprolite":                        "coprolite fossil feces",
-    "Brachiopod Cluster":               "brachiopod spirifer fossil devonian",
-    "Eurypterid":                       "eurypterid sea scorpion fossil silurian",
-    "Horseshoe Crab":                   "horseshoe crab limulus fossil",
-    "Plant Fossil":                     "sigillaria plant fossil carboniferous",
-    "Shark Teeth":                      "shark teeth fossil miocene",
-    "Mammoth Molar":                    "mammoth molar fossil pleistocene",
-    "Glyptodon Osteoderms":             "glyptodon osteoderm fossil",
-    "Plesiosaurian Vertebra":           "plesiosaur vertebra fossil jurassic",
+    "Trilobite":                         "trilobite fossil enrolled",
+    "Ammonite":                          "ammonite fossil polished section",
+    "Fish Fossil":                       "fish fossil green river formation",
+    "Mosasaur Tooth on Matrix":          "mosasaur tooth fossil cretaceous",
+    "Megalodon Tooth Replica":           "megalodon shark tooth fossil",
+    "Dinosaur Tooth":                    "dinosaur tooth fossil theropod",
+    "Insect in Amber":                   "insect amber fossil eocene",
+    "Spider in Amber":                   "spider amber fossil inclusion",
+    "Fern Fossil":                       "fern fossil carboniferous",
+    "Petrified Wood":                    "petrified wood silicified fossil",
+    "Sea Urchin":                        "echinoid sea urchin fossil",
+    "Crinoid Stem Section":              "crinoid stem fossil polished",
+    "Nautiloid":                         "orthoceras nautiloid fossil polished",
+    "Trace Fossil":                      "dinosaur footprint trace fossil",
+    "Coprolite":                         "coprolite fossil feces",
+    "Brachiopod Cluster":                "brachiopod fossil shell devonian",
+    "Eurypterid":                        "eurypterid fossil sea scorpion",
+    "Horseshoe Crab":                    "horseshoe crab limulus fossil",
+    "Plant Fossil":                      "sigillaria plant fossil carboniferous",
+    "Shark Teeth":                       "shark teeth fossil miocene",
+    "Mammoth Molar":                     "mammoth molar fossil pleistocene",
+    "Glyptodon Osteoderms":              "glyptodon osteoderm fossil",
+    "Plesiosaurian Vertebra":            "plesiosaur vertebra fossil jurassic",
 
     # Meteorites
-    "Gibeon Iron Meteorite":            "gibeon meteorite widmanstatten etched",
-    "Campo del Cielo Iron Meteorite":   "campo del cielo iron meteorite",
-    "Sikhote-Alin Individual":          "sikhote-alin iron meteorite shrapnel",
-    "Chondrite Meteorite":              "chondrite meteorite chondrules",
-    "Carbonaceous Chondrite":           "carbonaceous chondrite cm2 meteorite",
-    "Pallasite Meteorite":              "pallasite meteorite olivine iron",
-    "Lunar Meteorite":                  "lunar meteorite mare basalt",
-    "Martian Meteorite":                "martian meteorite shergottite",
-    "Moldavite":                        "moldavite tektite green glass czech",
-    "Libyan Desert Glass":              "libyan desert glass silica tektite",
-    "Australite Button":                "australite button tektite australia",
-    "Darwin Glass":                     "darwin glass tektite tasmania",
-    "Iron Meteorite":                   "iron meteorite widmanstatten pattern",
-    "Imilac Pallasite":                 "imilac pallasite meteorite olivine",
-    "Seymchan Pallasite":               "seymchan pallasite meteorite",
+    "Gibeon Iron Meteorite":             "gibeon meteorite widmanstatten etched",
+    "Campo del Cielo Iron Meteorite":    "campo del cielo iron meteorite",
+    "Sikhote-Alin Individual":           "sikhote-alin iron meteorite shrapnel",
+    "Chondrite Meteorite":               "chondrite meteorite chondrules",
+    "Carbonaceous Chondrite":            "carbonaceous chondrite cm2 meteorite",
+    "Pallasite Meteorite":               "pallasite meteorite olivine iron",
+    "Lunar Meteorite":                   "lunar meteorite mare basalt",
+    "Martian Meteorite":                 "martian meteorite shergottite",
+    "Moldavite":                         "moldavite tektite green glass czech",
+    "Libyan Desert Glass":               "libyan desert glass silica tektite",
+    "Australite Button":                 "australite tektite button australia",
+    "Darwin Glass":                      "darwin glass tektite tasmania",
+    "Iron Meteorite":                    "iron meteorite widmanstatten pattern",
+    "Imilac Pallasite":                  "imilac pallasite meteorite olivine",
+    "Seymchan Pallasite":                "seymchan pallasite meteorite",
 
     # Geological specimens
-    "Amethyst Cathedral Geode":         "amethyst cathedral geode half",
-    "Celestite Geode":                  "celestite geode blue crystal ohio",
-    "Obsidian":                         "obsidian volcanic glass mahogany",
-    "Fulgurite":                        "fulgurite lightning glass sand tube",
-    "Banded Iron Formation":            "banded iron formation BIF precambrian",
-    "Septarian Nodule":                 "septarian nodule polished calcite",
-    "Volcanic Bomb":                    "volcanic bomb breadcrust lava",
-    "Pele's Tears":                     "pele tears hawaiian basaltic glass",
-    "Suevite":                          "suevite impact breccia meteorite crater",
-    "Shatter Cone":                     "shatter cone impact structure",
-    "Eclogite":                         "eclogite garnet omphacite metamorphic",
-    "Oolitic Limestone":                "oolitic limestone ooids sedimentary",
-    "Desert Varnish Sandstone":         "desert varnish sandstone rock art",
-    "Chalk with Flint Nodule":          "flint nodule chalk cretaceous",
-    "Garnet Schist":                    "garnet schist metamorphic mineral",
-    "Pumice from Santorini":            "pumice volcanic santorini greece",
-    "Serpentinite":                     "serpentinite ophiolite green rock",
-    "Radiolarite":                      "radiolarite chert siliceous rock",
-    "Conglomerate":                     "tillite glacial conglomerate",
+    "Amethyst Cathedral Geode":          "amethyst cathedral geode half",
+    "Obsidian":                          "obsidian volcanic glass mahogany",
+    "Fulgurite":                         "fulgurite lightning glass sand tube",
+    "Banded Iron Formation":             "banded iron formation BIF precambrian",
+    "Septarian Nodule":                  "septarian nodule polished calcite",
+    "Volcanic Bomb":                     "volcanic bomb breadcrust lava",
+    "Pele's Tears":                      "pele tears hawaiian basaltic glass",
+    "Suevite":                           "suevite breccia nordlingen impact",
+    "Shatter Cone":                      "shatter cone impact structure",
+    "Eclogite":                          "eclogite garnet omphacite metamorphic",
+    "Oolitic Limestone":                 "oolitic limestone ooids sedimentary",
+    "Desert Varnish Sandstone":          "desert varnish sandstone rock art",
+    "Chalk with Flint Nodule":           "flint nodule chalk cretaceous",
+    "Garnet Schist":                     "garnet schist metamorphic rock",
+    "Pumice from Santorini":             "pumice volcanic santorini greece",
+    "Serpentinite":                      "serpentinite ophiolite green rock",
+    "Radiolarite":                       "radiolarite chert siliceous rock",
+    "Conglomerate":                      "tillite glacial conglomerate",
+
+    # Curated Collections — use representative specimen imagery
+    "Gift Set":                          "mineral crystal collection box gift",
+    "Fluorescent Mineral Set":           "fluorescent minerals ultraviolet shortwave",
+    "Meteorite Collectors Set":          "meteorite collection iron chondrite pallasite",
+    "Educational Kit":                   "mineral rock collection identification",
+    "Geological Timeline Collection":    "geological rock specimen collection formation",
+    "Rainbow Minerals Collection":       "colorful mineral collection malachite azurite",
+    "Space Rocks Starter Kit":           "meteorite tektite impactite collection",
+    "Crystal Healing Skeptic's Kit":     "crystal quartz amethyst mineral collection",
+    "Collector's Gemstone Rough Box":    "rough gemstone crystal collection assortment",
+    "World Tour Collection":             "mineral specimen collection display tray",
+}
+
+# Known Wikimedia filenames for items whose search keeps failing — skips the
+# search API call entirely and goes straight to imageinfo + download.
+KNOWN_FILENAMES = {
+    "Kunzite Crystal":               "Spodumene-191611.jpg",
+    "Libyan Desert Glass":           "Libyan Desert Glass tektite (Oligocene, 28.5 Ma; Libyan Desert, Egypt) 1.jpg",
+    "Manganite Crystal":             "Manganite-239863.jpg",
+    "Native Copper Arborescent":     "Copper-35877.jpg",
+    "Nautiloid":                     "Orthoceras characters.JPG",
+    "Paraíba Tourmaline":            "Tourmaline-49508.jpg",
+    "Prehnite Stalactite":           "Prehnite-121759.jpg",
+    "Rainbow Minerals Collection":   "Cyanotrichite-Malachite-Azurite-147025.jpg",
+    "Rhodochrosite Stalactite Slice":"Rhodochrosite-50006.jpg",
+    "Ruby Crystal in Matrix":        "Corundum (Variety trapiche ruby)-649830.jpg",
+    "Smoky Quartz Elestial":         "Smoky-quartz-TUCQTZ09-03-arkenstone-irocks.png",
+    "Topaz":                         "Topaz-imperial topaz1b.jpg",
+    "Trilobite":                     "Phacops enrolled.png",
+    "World Tour Collection":         "Mineralien.jpg",
+    "Wulfenite Crystal Plate":       "Wulfenite-Calcite-191707.jpg",
+}
+
+# Simpler fallback queries tried if the primary returns no result
+SEARCH_FALLBACKS = {
+    "Agate Slice":                       "agate slice mineral",
+    "Smoky Quartz Elestial":             "smoky quartz crystal",
+    "Goshenite":                         "beryl crystal colorless white",
+    "Grossular Garnet":                  "grossular garnet crystal",
+    "Topaz":                             "topaz crystal",
+    "Chalcopyrite Crystal on Sphalerite":"chalcopyrite crystal mineral",
+    "Crocoite Crystal Cluster":          "crocoite crystal",
+    "Rhodochrosite Stalactite Slice":    "rhodochrosite crystal mineral",
+    "Celestite Geode":                   "celestite crystal mineral",
+    "Calcite Dog-Tooth Cluster":         "calcite crystal cluster",
+    "Prehnite Stalactite":               "prehnite crystal green",
+    "Kunzite Crystal":                   "kunzite crystal mineral",
+    "Benitoite Crystal on Natrolite":    "benitoite crystal mineral",
+    "Tanzanite Crystal":                 "tanzanite crystal mineral",
+    "Painite Crystal":                   "painite mineral",
+    "Euclase Crystal":                   "euclase crystal",
+    "Fluorapatite Crystal":              "apatite crystal mineral",
+    "Clinozoisite Crystal":              "clinozoisite crystal",
+    "Manganite Crystal":                 "manganite crystal",
+    "Native Silver Wires":               "native silver mineral",
+    "Native Copper Arborescent":         "native copper mineral",
+    "Hematite Rose":                     "hematite iron rose specular mineral",
+    "Ilvaite Crystal":                   "ilvaite mineral crystal",
+    "Kyanite Crystal":                   "kyanite crystal mineral",
+    "Realgar Crystal on Orpiment":       "realgar crystal mineral",
+    "Wulfenite Crystal Plate":           "wulfenite crystal",
+    "Labradorite Freeform":              "labradorite mineral",
+    "Libyan Desert Glass":               "libyan glass tektite",
+    "Diamond Crystal":                   "diamond crystal rough",
+    "Ruby Crystal in Matrix":            "ruby corundum crystal",
+    "Padparadscha Sapphire Crystal":     "padparadscha sapphire",
+    "Color-Change Garnet":               "garnet color change",
+    "Kornerupine Crystal":               "kornerupine mineral",
+    "Grandidierite Crystal":             "grandidierite mineral",
+    "Jeremejevite Crystal":              "jeremejevite mineral",
+    "Jet Carved Specimen":               "jet gemstone black",
+    "Paraíba Tourmaline":                "tourmaline blue copper",
+    "White Opal":                        "opal white gemstone",
+    "Trilobite":                         "trilobite fossil",
+    "Brachiopod Cluster":                "brachiopod fossil",
+    "Eurypterid":                        "eurypterid fossil",
+    "Nautiloid":                         "orthoceras fossil",
+    "Sea Urchin":                        "echinoid fossil",
+    "Spider in Amber":                   "spider amber fossil",
+    "Australite Button":                 "australite tektite",
+    "Garnet Schist":                     "schist metamorphic rock",
+    "Suevite":                           "suevite breccia impact",
+    "Gift Set":                          "mineral crystal display collection",
+    "Fluorescent Mineral Set":           "fluorescent calcite mineral",
+    "Meteorite Collectors Set":          "meteorite collection",
+    "Educational Kit":                   "mineral collection rocks",
+    "Geological Timeline Collection":    "geological rock collection",
+    "Rainbow Minerals Collection":       "colorful minerals collection",
+    "Space Rocks Starter Kit":           "meteorite space rock",
+    "Crystal Healing Skeptic's Kit":     "crystal mineral collection",
+    "Collector's Gemstone Rough Box":    "rough gemstone mineral",
+    "World Tour Collection":             "mineral specimen worldwide",
 }
 
 
@@ -194,7 +286,7 @@ def wiki_get(url, timeout=15):
                 return r.read()
         except urllib.error.HTTPError as e:
             if e.code == 429:
-                wait = API_DELAY * (2 ** attempt)
+                wait = min(API_DELAY * (2 ** attempt), MAX_WAIT)
                 print(f"    Rate limited (429) — waiting {wait:.1f}s before retry {attempt+1}/{MAX_RETRIES}", file=sys.stderr)
                 time.sleep(wait)
             else:
@@ -209,7 +301,7 @@ def wikimedia_search(query):
         "list": "search",
         "srsearch": query,
         "srnamespace": "6",
-        "srlimit": "8",
+        "srlimit": "20",
         "format": "json",
     })
     try:
@@ -345,18 +437,30 @@ def main():
             reused += len(skus)
             continue
 
-        # Determine search query
-        query = SEARCH_TERMS.get(base_name, base_name + " mineral specimen")
-
         print(f"[{downloaded+failed+1}/{len(base_to_skus)}] {base_name}")
-        print(f"  Query: {query}")
 
-        time.sleep(API_DELAY)
-        filename = wikimedia_search(query)
-        if not filename:
-            print(f"  No result — keeping placeholder")
-            failed += 1
-            continue
+        # Use known filename directly (skips search API call)
+        if base_name in KNOWN_FILENAMES:
+            filename = KNOWN_FILENAMES[base_name]
+            print(f"  Known: {filename}")
+        else:
+            query = SEARCH_TERMS.get(base_name, base_name.split()[0] + " crystal mineral")
+            print(f"  Query: {query}")
+
+            time.sleep(API_DELAY)
+            filename = wikimedia_search(query)
+
+            # Try fallback query if primary failed
+            if not filename and base_name in SEARCH_FALLBACKS:
+                fallback = SEARCH_FALLBACKS[base_name]
+                print(f"  Fallback: {fallback}")
+                time.sleep(API_DELAY)
+                filename = wikimedia_search(fallback)
+
+            if not filename:
+                print(f"  No result — keeping placeholder")
+                failed += 1
+                continue
 
         print(f"  File:  {filename}")
         time.sleep(API_DELAY)
@@ -369,7 +473,8 @@ def main():
         thumb_url, page_url, author, license_short = result
         print(f"  URL:   {thumb_url[:80]}…")
 
-        # Download to canonical path
+        # Extra pause before image download to respect upload.wikimedia.org limits
+        time.sleep(DOWNLOAD_DELAY)
         ok = download_and_optimize(thumb_url, canonical_out)
         if not ok:
             print(f"  Download failed — keeping placeholder")

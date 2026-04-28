@@ -1461,5 +1461,934 @@
       "TC-MIN-0279",
       "TC-MIN-0282"
     ]
+  },
+  "Agate Slice": {
+    "wikimedia_file": "Blauer Achat -- 2014 -- 2352.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Blauer%20Achat%20--%202014%20--%202352.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blauer_Achat_--_2014_--_2352.jpg/960px-Blauer_Achat_--_2014_--_2352.jpg",
+    "author": "An\u0131l \u00d6zta\u015f",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-MIN-0064",
+      "TC-MIN-0132",
+      "TC-MIN-0176",
+      "TC-MIN-0189",
+      "TC-MIN-0259"
+    ]
+  },
+  "Australite Button": {
+    "wikimedia_file": "Australite tektite shallow bowl.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Australite%20tektite%20shallow%20bowl.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Australite_tektite_shallow_bowl.jpg/960px-Australite_tektite_shallow_bowl.jpg",
+    "author": "Brocken Inaglory",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MET-0740",
+      "TC-MET-0743",
+      "TC-MET-0752",
+      "TC-MET-0766",
+      "TC-MET-0772",
+      "TC-MET-0780"
+    ]
+  },
+  "Benitoite Crystal on Natrolite": {
+    "wikimedia_file": "Benitoite-136234.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Benitoite-136234.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Benitoite-136234.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0040",
+      "TC-MIN-0224",
+      "TC-MIN-0274",
+      "TC-MIN-0287"
+    ]
+  },
+  "Brachiopod Cluster": {
+    "wikimedia_file": "Leptaena fossil brachiopod in fossiliferous limestone (Middle Devonian; gravel bar clast, Olentangy River, Columbus, Ohio, USA) 1 (28934324463).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Leptaena%20fossil%20brachiopod%20in%20fossiliferous%20limestone%20%28Middle%20Devonian%3B%20gravel%20bar%20clast%2C%20Olentangy%20River%2C%20Columbus%2C%20Ohio%2C%20USA%29%201%20%2828934324463%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Leptaena_fossil_brachiopod_in_fossiliferous_limestone_%28Middle_Devonian%3B_gravel_bar_clast%2C_Olentangy_River%2C_Columbus%2C_Ohio%2C_USA%29_1_%2828934324463%29.jpg/960px-Leptaena_fossil_brachiopod_in_fossiliferous_limestone_%28Middle_Devonian%3B_gravel_bar_clast%2C_Olentangy_River%2C_Columbus%2C_Ohio%2C_USA%29_1_%2828934324463%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-FOS-0505",
+      "TC-FOS-0513",
+      "TC-FOS-0516",
+      "TC-FOS-0601",
+      "TC-FOS-0657",
+      "TC-FOS-0681",
+      "TC-FOS-0686"
+    ]
+  },
+  "Calcite Dog-Tooth Cluster": {
+    "wikimedia_file": "Calcite-282257.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calcite-282257.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Calcite-282257.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0023",
+      "TC-MIN-0100",
+      "TC-MIN-0165",
+      "TC-MIN-0188",
+      "TC-MIN-0268"
+    ]
+  },
+  "Celestite Geode": {
+    "wikimedia_file": "Celestine-d06-182a.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Celestine-d06-182a.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Celestine-d06-182a.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0034",
+      "TC-MIN-0131",
+      "TC-MIN-0151",
+      "TC-MIN-0170",
+      "TC-MIN-0241",
+      "TC-GEO-0824",
+      "TC-GEO-0829",
+      "TC-GEO-0853",
+      "TC-GEO-0868",
+      "TC-GEO-0877",
+      "TC-GEO-0883"
+    ]
+  },
+  "Chalcopyrite Crystal on Sphalerite": {
+    "wikimedia_file": "Chalcopyrite-Sphalerite-Calcite-244275.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Chalcopyrite-Sphalerite-Calcite-244275.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Chalcopyrite-Sphalerite-Calcite-244275.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0082",
+      "TC-MIN-0099",
+      "TC-MIN-0242",
+      "TC-MIN-0273",
+      "TC-MIN-0281"
+    ]
+  },
+  "Citrine Crystal Point": {
+    "wikimedia_file": "Quartz-224146.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Quartz-224146.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Quartz-224146.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0069",
+      "TC-MIN-0114",
+      "TC-MIN-0135",
+      "TC-MIN-0146",
+      "TC-MIN-0158"
+    ]
+  },
+  "Clinozoisite Crystal": {
+    "wikimedia_file": "Clinozoisite-md6b.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Clinozoisite-md6b.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/a/a0/Clinozoisite-md6b.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0036",
+      "TC-MIN-0050",
+      "TC-MIN-0137",
+      "TC-MIN-0218"
+    ]
+  },
+  "Collector's Gemstone Rough Box": {
+    "wikimedia_file": "Rough Red Garnet Gemstone.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Rough%20Red%20Garnet%20Gemstone.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Rough_Red_Garnet_Gemstone.jpg/960px-Rough_Red_Garnet_Gemstone.jpg",
+    "author": "IWA",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-COL-0910",
+      "TC-COL-0912",
+      "TC-COL-0921",
+      "TC-COL-0945",
+      "TC-COL-0951",
+      "TC-COL-0975",
+      "TC-COL-0995",
+      "TC-COL-0997"
+    ]
+  },
+  "Color-Change Garnet": {
+    "wikimedia_file": "Almandine garnet 2.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Almandine%20garnet%202.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Almandine_garnet_2.jpg/960px-Almandine_garnet_2.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-GEM-0305",
+      "TC-GEM-0371",
+      "TC-GEM-0399",
+      "TC-GEM-0403",
+      "TC-GEM-0438",
+      "TC-GEM-0457",
+      "TC-GEM-0466",
+      "TC-GEM-0494"
+    ]
+  },
+  "Crocoite Crystal Cluster": {
+    "wikimedia_file": "Crocoite-229680.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Crocoite-229680.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Crocoite-229680.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0066",
+      "TC-MIN-0097",
+      "TC-MIN-0115",
+      "TC-MIN-0116",
+      "TC-MIN-0172"
+    ]
+  },
+  "Crystal Healing Skeptic's Kit": {
+    "wikimedia_file": "Quartz-148106.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Quartz-148106.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Quartz-148106.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-COL-0915",
+      "TC-COL-0923",
+      "TC-COL-0925",
+      "TC-COL-0942",
+      "TC-COL-0946",
+      "TC-COL-0948",
+      "TC-COL-0960",
+      "TC-COL-0968",
+      "TC-COL-0972"
+    ]
+  },
+  "Diamond Crystal": {
+    "wikimedia_file": "Colorado Diamond Crystal, Freedom Diamond, Uncle Sam Diamond, Canary Diamond.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Colorado%20Diamond%20Crystal%2C%20Freedom%20Diamond%2C%20Uncle%20Sam%20Diamond%2C%20Canary%20Diamond.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Colorado_Diamond_Crystal%2C_Freedom_Diamond%2C_Uncle_Sam_Diamond%2C_Canary_Diamond.jpg/960px-Colorado_Diamond_Crystal%2C_Freedom_Diamond%2C_Uncle_Sam_Diamond%2C_Canary_Diamond.jpg",
+    "author": "Smithsonian Institution",
+    "license": "Public domain",
+    "used_by_skus": [
+      "TC-GEM-0307",
+      "TC-GEM-0361",
+      "TC-GEM-0387",
+      "TC-GEM-0415",
+      "TC-GEM-0421",
+      "TC-GEM-0426",
+      "TC-GEM-0489",
+      "TC-GEM-0497"
+    ]
+  },
+  "Educational Kit": {
+    "wikimedia_file": "Breiddalsvik mineral collection 7.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Breiddalsvik%20mineral%20collection%207.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Breiddalsvik_mineral_collection_7.jpg/960px-Breiddalsvik_mineral_collection_7.jpg",
+    "author": "Christian Bickel fingalo",
+    "license": "CC BY-SA 2.0 de",
+    "used_by_skus": [
+      "TC-COL-0907",
+      "TC-COL-0913",
+      "TC-COL-0920",
+      "TC-COL-0928",
+      "TC-COL-0959",
+      "TC-COL-0974",
+      "TC-COL-0984",
+      "TC-COL-0985"
+    ]
+  },
+  "Euclase Crystal": {
+    "wikimedia_file": "Euclase-21998.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Euclase-21998.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Euclase-21998.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0042",
+      "TC-MIN-0229",
+      "TC-MIN-0232",
+      "TC-MIN-0239"
+    ]
+  },
+  "Eurypterid": {
+    "wikimedia_file": "Eurypterid (fossil sea scorpion).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Eurypterid%20%28fossil%20sea%20scorpion%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Eurypterid_%28fossil_sea_scorpion%29.jpg/960px-Eurypterid_%28fossil_sea_scorpion%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-FOS-0502",
+      "TC-FOS-0534",
+      "TC-FOS-0557",
+      "TC-FOS-0605",
+      "TC-FOS-0623",
+      "TC-FOS-0665",
+      "TC-FOS-0697"
+    ]
+  },
+  "Fluorapatite Crystal": {
+    "wikimedia_file": "Apatite-(CaF)-258290.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Apatite-%28CaF%29-258290.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Apatite-%28CaF%29-258290.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0062",
+      "TC-MIN-0191",
+      "TC-MIN-0200",
+      "TC-MIN-0253"
+    ]
+  },
+  "Fluorescent Mineral Set": {
+    "wikimedia_file": "Fluorescence in calcite.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Fluorescence%20in%20calcite.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Fluorescence_in_calcite.jpg/960px-Fluorescence_in_calcite.jpg",
+    "author": "Jan Pavelka",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-COL-0902",
+      "TC-COL-0929",
+      "TC-COL-0940",
+      "TC-COL-0944",
+      "TC-COL-0957",
+      "TC-COL-0971",
+      "TC-COL-0980",
+      "TC-COL-1000"
+    ]
+  },
+  "Garnet Schist": {
+    "wikimedia_file": "Garnet-mica schist (Gassetts, Vermont, USA) 2.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Garnet-mica%20schist%20%28Gassetts%2C%20Vermont%2C%20USA%29%202.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Garnet-mica_schist_%28Gassetts%2C_Vermont%2C_USA%29_2.jpg/960px-Garnet-mica_schist_%28Gassetts%2C_Vermont%2C_USA%29_2.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-GEO-0807",
+      "TC-GEO-0813",
+      "TC-GEO-0865",
+      "TC-GEO-0893",
+      "TC-GEO-0899"
+    ]
+  },
+  "Geological Timeline Collection": {
+    "wikimedia_file": "Geological public collection - Alpines Museum - Grauwacke.JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Geological%20public%20collection%20-%20Alpines%20Museum%20-%20Grauwacke.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Geological_public_collection_-_Alpines_Museum_-_Grauwacke.JPG/960px-Geological_public_collection_-_Alpines_Museum_-_Grauwacke.JPG",
+    "author": "High Contrast",
+    "license": "CC BY 3.0 de",
+    "used_by_skus": [
+      "TC-COL-0909",
+      "TC-COL-0922",
+      "TC-COL-0930",
+      "TC-COL-0941",
+      "TC-COL-0949",
+      "TC-COL-0953",
+      "TC-COL-0961",
+      "TC-COL-0962",
+      "TC-COL-0990"
+    ]
+  },
+  "Gift Set": {
+    "wikimedia_file": "Gfp-display-case-of-minerals.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Gfp-display-case-of-minerals.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Gfp-display-case-of-minerals.jpg/960px-Gfp-display-case-of-minerals.jpg",
+    "author": "Yinan Chen",
+    "license": "Public Domain",
+    "used_by_skus": [
+      "TC-COL-0904",
+      "TC-COL-0906",
+      "TC-COL-0918",
+      "TC-COL-0919",
+      "TC-COL-0927",
+      "TC-COL-0931",
+      "TC-COL-0932",
+      "TC-COL-0933",
+      "TC-COL-0936",
+      "TC-COL-0952",
+      "TC-COL-0958",
+      "TC-COL-0967",
+      "TC-COL-0969",
+      "TC-COL-0970",
+      "TC-COL-0973",
+      "TC-COL-0976",
+      "TC-COL-0978",
+      "TC-COL-0979",
+      "TC-COL-0982",
+      "TC-COL-0991",
+      "TC-COL-0992",
+      "TC-COL-0993",
+      "TC-COL-0998",
+      "TC-COL-0999"
+    ]
+  },
+  "Goshenite": {
+    "wikimedia_file": "Beryl-Schorl-140550.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Beryl-Schorl-140550.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Beryl-Schorl-140550.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0081",
+      "TC-MIN-0105",
+      "TC-MIN-0197",
+      "TC-MIN-0207",
+      "TC-MIN-0298"
+    ]
+  },
+  "Grandidierite Crystal": {
+    "wikimedia_file": "Grandidierite-169886.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Grandidierite-169886.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Grandidierite-169886.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-GEM-0322",
+      "TC-GEM-0354",
+      "TC-GEM-0362",
+      "TC-GEM-0402",
+      "TC-GEM-0473",
+      "TC-GEM-0480",
+      "TC-GEM-0481"
+    ]
+  },
+  "Grossular Garnet": {
+    "wikimedia_file": "Grossular garnet (Mexico) 6.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Grossular%20garnet%20%28Mexico%29%206.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grossular_garnet_%28Mexico%29_6.jpg/960px-Grossular_garnet_%28Mexico%29_6.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0092",
+      "TC-MIN-0117",
+      "TC-MIN-0129",
+      "TC-MIN-0159",
+      "TC-MIN-0289"
+    ]
+  },
+  "Jeremejevite Crystal": {
+    "wikimedia_file": "Jeremejevite-39096.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Jeremejevite-39096.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Jeremejevite-39096.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-GEM-0357",
+      "TC-GEM-0360",
+      "TC-GEM-0419",
+      "TC-GEM-0420",
+      "TC-GEM-0424",
+      "TC-GEM-0444",
+      "TC-GEM-0453"
+    ]
+  },
+  "Jet Carved Specimen": {
+    "wikimedia_file": "Gagat-Holzmaden.JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Gagat-Holzmaden.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Gagat-Holzmaden.JPG/960px-Gagat-Holzmaden.JPG",
+    "author": "Thmsfrst",
+    "license": "Public domain",
+    "used_by_skus": [
+      "TC-GEM-0310",
+      "TC-GEM-0321",
+      "TC-GEM-0368",
+      "TC-GEM-0392",
+      "TC-GEM-0409",
+      "TC-GEM-0446",
+      "TC-GEM-0496"
+    ]
+  },
+  "Kyanite Crystal": {
+    "wikimedia_file": "Kyanite 5.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Kyanite%205.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Kyanite_5.jpg/960px-Kyanite_5.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0006",
+      "TC-MIN-0112",
+      "TC-MIN-0128",
+      "TC-MIN-0177"
+    ]
+  },
+  "Labradorite Freeform": {
+    "wikimedia_file": "Spectrolite (gem-quality labradorite plagioclase feldspar).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Spectrolite%20%28gem-quality%20labradorite%20plagioclase%20feldspar%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Spectrolite_%28gem-quality_labradorite_plagioclase_feldspar%29.jpg/960px-Spectrolite_%28gem-quality_labradorite_plagioclase_feldspar%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0030",
+      "TC-MIN-0072",
+      "TC-MIN-0169",
+      "TC-MIN-0230",
+      "TC-MIN-0267"
+    ]
+  },
+  "Meteorite Collectors Set": {
+    "wikimedia_file": "Meteorite collection at the Geological Museum Copenhagen.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Meteorite%20collection%20at%20the%20Geological%20Museum%20Copenhagen.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Meteorite_collection_at_the_Geological_Museum_Copenhagen.jpg/960px-Meteorite_collection_at_the_Geological_Museum_Copenhagen.jpg",
+    "author": "Charlotte S H Jensen",
+    "license": "CC BY-SA 2.0",
+    "used_by_skus": [
+      "TC-COL-0926",
+      "TC-COL-0934",
+      "TC-COL-0937",
+      "TC-COL-0939",
+      "TC-COL-0950",
+      "TC-COL-0954",
+      "TC-COL-0965",
+      "TC-COL-0986"
+    ]
+  },
+  "Native Silver Wires": {
+    "wikimedia_file": "Silver (Kongsberg, Norway) 4.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Silver%20%28Kongsberg%2C%20Norway%29%204.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Silver_%28Kongsberg%2C_Norway%29_4.jpg/960px-Silver_%28Kongsberg%2C_Norway%29_4.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0008",
+      "TC-MIN-0027",
+      "TC-MIN-0265",
+      "TC-MIN-0300"
+    ]
+  },
+  "Painite Crystal": {
+    "wikimedia_file": "Painite Crystal.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Painite%20Crystal.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Painite_Crystal.jpg/960px-Painite_Crystal.jpg",
+    "author": "Mineral Enthusiast",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-MIN-0091",
+      "TC-MIN-0095",
+      "TC-MIN-0217",
+      "TC-MIN-0296"
+    ]
+  },
+  "Realgar Crystal on Orpiment": {
+    "wikimedia_file": "Realgar and orpiment-2.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Realgar%20and%20orpiment-2.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Realgar_and_orpiment-2.jpg/960px-Realgar_and_orpiment-2.jpg",
+    "author": "Eurico Zimbres and Tom Epaminondas",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0035",
+      "TC-MIN-0058",
+      "TC-MIN-0071",
+      "TC-MIN-0150",
+      "TC-MIN-0240"
+    ]
+  },
+  "Sea Urchin": {
+    "wikimedia_file": "Fossil sea urchin (FindID 551527) cropped transparent background.png",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Fossil%20sea%20urchin%20%28FindID%20551527%29%20cropped%20transparent%20background.png",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Fossil_sea_urchin_%28FindID_551527%29_cropped_transparent_background.png/960px-Fossil_sea_urchin_%28FindID_551527%29_cropped_transparent_background.png",
+    "author": "Lincolnshire County Council, Adam Daubney, 2013-03-21 16:38:14",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-FOS-0552",
+      "TC-FOS-0567",
+      "TC-FOS-0603",
+      "TC-FOS-0615",
+      "TC-FOS-0637",
+      "TC-FOS-0643",
+      "TC-FOS-0692"
+    ]
+  },
+  "Space Rocks Starter Kit": {
+    "wikimedia_file": "PIA21134 Curiosity Rover Finds and Examines a Meteorite on Mars.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:PIA21134%20Curiosity%20Rover%20Finds%20and%20Examines%20a%20Meteorite%20on%20Mars.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/PIA21134_Curiosity_Rover_Finds_and_Examines_a_Meteorite_on_Mars.jpg/960px-PIA21134_Curiosity_Rover_Finds_and_Examines_a_Meteorite_on_Mars.jpg",
+    "author": "NASA/JPL-Caltech/MSSS",
+    "license": "Public domain",
+    "used_by_skus": [
+      "TC-COL-0901",
+      "TC-COL-0905",
+      "TC-COL-0917",
+      "TC-COL-0924",
+      "TC-COL-0943",
+      "TC-COL-0947",
+      "TC-COL-0966",
+      "TC-COL-0988",
+      "TC-COL-0989"
+    ]
+  },
+  "Spider in Amber": {
+    "wikimedia_file": "Fossil spider (Arachnida, Araneida) in Baltic amber. Age 50 Mill. years (the Lower Eocene).JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Fossil%20spider%20%28Arachnida%2C%20Araneida%29%20in%20Baltic%20amber.%20Age%2050%20Mill.%20years%20%28the%20Lower%20Eocene%29.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fossil_spider_%28Arachnida%2C_Araneida%29_in_Baltic_amber._Age_50_Mill._years_%28the_Lower_Eocene%29.JPG/960px-Fossil_spider_%28Arachnida%2C_Araneida%29_in_Baltic_amber._Age_50_Mill._years_%28the_Lower_Eocene%29.JPG",
+    "author": "Manukyan Andranik",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-FOS-0521",
+      "TC-FOS-0543",
+      "TC-FOS-0550",
+      "TC-FOS-0583",
+      "TC-FOS-0592",
+      "TC-FOS-0622",
+      "TC-FOS-0634"
+    ]
+  },
+  "Suevite": {
+    "wikimedia_file": "Impact breccia with melt (possibly a suevite) (Eocene, 39 Ma; Haughton Impact Structure, Devon Island, northern Canada) 1 (16866080341).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Impact%20breccia%20with%20melt%20%28possibly%20a%20suevite%29%20%28Eocene%2C%2039%20Ma%3B%20Haughton%20Impact%20Structure%2C%20Devon%20Island%2C%20northern%20Canada%29%201%20%2816866080341%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Impact_breccia_with_melt_%28possibly_a_suevite%29_%28Eocene%2C_39_Ma%3B_Haughton_Impact_Structure%2C_Devon_Island%2C_northern_Canada%29_1_%2816866080341%29.jpg/960px-Impact_breccia_with_melt_%28possibly_a_suevite%29_%28Eocene%2C_39_Ma%3B_Haughton_Impact_Structure%2C_Devon_Island%2C_northern_Canada%29_1_%2816866080341%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-GEO-0817",
+      "TC-GEO-0823",
+      "TC-GEO-0832",
+      "TC-GEO-0860",
+      "TC-GEO-0900"
+    ]
+  },
+  "Tanzanite Crystal": {
+    "wikimedia_file": "Tanzanite (Merelani Tanzanite Deposit, Merelani Hills, Arusha, Tanzania).JPG",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Tanzanite%20%28Merelani%20Tanzanite%20Deposit%2C%20Merelani%20Hills%2C%20Arusha%2C%20Tanzania%29.JPG",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Tanzanite_%28Merelani_Tanzanite_Deposit%2C_Merelani_Hills%2C_Arusha%2C_Tanzania%29.JPG/960px-Tanzanite_%28Merelani_Tanzanite_Deposit%2C_Merelani_Hills%2C_Arusha%2C_Tanzania%29.JPG",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0149",
+      "TC-MIN-0211",
+      "TC-MIN-0266",
+      "TC-MIN-0280"
+    ]
+  },
+  "White Opal": {
+    "wikimedia_file": "Precious opal after glendonite (White Cliffs Opal Field, New South Wales, Australia).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Precious%20opal%20after%20glendonite%20%28White%20Cliffs%20Opal%20Field%2C%20New%20South%20Wales%2C%20Australia%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Precious_opal_after_glendonite_%28White_Cliffs_Opal_Field%2C_New_South_Wales%2C_Australia%29.jpg/960px-Precious_opal_after_glendonite_%28White_Cliffs_Opal_Field%2C_New_South_Wales%2C_Australia%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-GEM-0352",
+      "TC-GEM-0378",
+      "TC-GEM-0405",
+      "TC-GEM-0412",
+      "TC-GEM-0465",
+      "TC-GEM-0472",
+      "TC-GEM-0488",
+      "TC-GEM-0490"
+    ]
+  },
+  "Hematite Rose": {
+    "wikimedia_file": "Hematite-Rutile-121180.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Hematite-Rutile-121180.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Hematite-Rutile-121180.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0121",
+      "TC-MIN-0206",
+      "TC-MIN-0244",
+      "TC-MIN-0256"
+    ]
+  },
+  "Ilvaite Crystal": {
+    "wikimedia_file": "Ilvaite-121875.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ilvaite-121875.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Ilvaite-121875.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0032",
+      "TC-MIN-0110",
+      "TC-MIN-0136",
+      "TC-MIN-0221"
+    ]
+  },
+  "Kornerupine Crystal": {
+    "wikimedia_file": "Kornerupine (GeoDIL number - 274).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Kornerupine%20%28GeoDIL%20number%20-%20274%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Kornerupine_%28GeoDIL_number_-_274%29.jpg/960px-Kornerupine_%28GeoDIL_number_-_274%29.jpg",
+    "author": "Nessa Eull",
+    "license": "CC0",
+    "used_by_skus": [
+      "TC-GEM-0337",
+      "TC-GEM-0375",
+      "TC-GEM-0377",
+      "TC-GEM-0455",
+      "TC-GEM-0460",
+      "TC-GEM-0475",
+      "TC-GEM-0485"
+    ]
+  },
+  "Padparadscha Sapphire Crystal": {
+    "wikimedia_file": "Gold ring with different gemstones set in a rainbow and topped with diamonds 3.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Gold%20ring%20with%20different%20gemstones%20set%20in%20a%20rainbow%20and%20topped%20with%20diamonds%203.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Gold_ring_with_different_gemstones_set_in_a_rainbow_and_topped_with_diamonds_3.jpg/960px-Gold_ring_with_different_gemstones_set_in_a_rainbow_and_topped_with_diamonds_3.jpg",
+    "author": "W.carter",
+    "license": "CC BY 4.0",
+    "used_by_skus": [
+      "TC-GEM-0311",
+      "TC-GEM-0331",
+      "TC-GEM-0334",
+      "TC-GEM-0341",
+      "TC-GEM-0348",
+      "TC-GEM-0384",
+      "TC-GEM-0470",
+      "TC-GEM-0499"
+    ]
+  },
+  "Kunzite Crystal": {
+    "wikimedia_file": "Spodumene var. hiddenite - Ara\u00e7ua\u00ed, Minas Gerais, Brazil.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Spodumene%20var.%20hiddenite%20-%20Ara%C3%A7ua%C3%AD%2C%20Minas%20Gerais%2C%20Brazil.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Spodumene_var._hiddenite_-_Ara%C3%A7ua%C3%AD%2C_Minas_Gerais%2C_Brazil.jpg/960px-Spodumene_var._hiddenite_-_Ara%C3%A7ua%C3%AD%2C_Minas_Gerais%2C_Brazil.jpg",
+    "author": "Ivar Leidus",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-MIN-0063",
+      "TC-MIN-0173",
+      "TC-MIN-0182",
+      "TC-MIN-0261",
+      "TC-MIN-0270"
+    ],
+    "reused_from": "Hiddenite Crystal"
+  },
+  "Libyan Desert Glass": {
+    "wikimedia_file": "Moldavite (Miocene, 14.5-14.8 Ma; Ries Impact Crater's tektite strewn field, Bohemia) 3.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Moldavite%20%28Miocene%2C%2014.5-14.8%20Ma%3B%20Ries%20Impact%20Crater%27s%20tektite%20strewn%20field%2C%20Bohemia%29%203.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Moldavite_%28Miocene%2C_14.5-14.8_Ma%3B_Ries_Impact_Crater%27s_tektite_strewn_field%2C_Bohemia%29_3.jpg/960px-Moldavite_%28Miocene%2C_14.5-14.8_Ma%3B_Ries_Impact_Crater%27s_tektite_strewn_field%2C_Bohemia%29_3.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MET-0716",
+      "TC-MET-0717",
+      "TC-MET-0725",
+      "TC-MET-0759",
+      "TC-MET-0768",
+      "TC-MET-0770",
+      "TC-MET-0798"
+    ],
+    "reused_from": "Moldavite"
+  },
+  "Manganite Crystal": {
+    "wikimedia_file": "Ilvaite-121875.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ilvaite-121875.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Ilvaite-121875.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0021",
+      "TC-MIN-0181",
+      "TC-MIN-0212",
+      "TC-MIN-0286"
+    ],
+    "reused_from": "Ilvaite Crystal"
+  },
+  "Native Copper Arborescent": {
+    "wikimedia_file": "Gold-quartz hydrothermal vein in matrix (Amador County, California, USA) (17161938811).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Gold-quartz%20hydrothermal%20vein%20in%20matrix%20%28Amador%20County%2C%20California%2C%20USA%29%20%2817161938811%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Gold-quartz_hydrothermal_vein_in_matrix_%28Amador_County%2C_California%2C_USA%29_%2817161938811%29.jpg/960px-Gold-quartz_hydrothermal_vein_in_matrix_%28Amador_County%2C_California%2C_USA%29_%2817161938811%29.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-MIN-0123",
+      "TC-MIN-0147",
+      "TC-MIN-0156",
+      "TC-MIN-0249"
+    ],
+    "reused_from": "Native Gold in Quartz Vein"
+  },
+  "Nautiloid": {
+    "wikimedia_file": "Ammonite-polished-shell.jpg Polished cross-section of an ammonite fossil, showing internal chamber structure and mineral coloration.png",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ammonite-polished-shell.jpg%20Polished%20cross-section%20of%20an%20ammonite%20fossil%2C%20showing%20internal%20chamber%20structure%20and%20mineral%20coloration.png",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Ammonite-polished-shell.jpg_Polished_cross-section_of_an_ammonite_fossil%2C_showing_internal_chamber_structure_and_mineral_coloration.png",
+    "author": "\u0394\u03b1\u03bd\u03ac\u03b7 \u039a\u03c9\u03c4\u03c3\u03b9\u03bf\u03bc\u03cd\u03c4\u03b7",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-FOS-0512",
+      "TC-FOS-0527",
+      "TC-FOS-0564",
+      "TC-FOS-0574",
+      "TC-FOS-0600",
+      "TC-FOS-0602",
+      "TC-FOS-0656"
+    ],
+    "reused_from": "Ammonite"
+  },
+  "Para\u00edba Tourmaline": {
+    "wikimedia_file": "Indicolite (Blue) Tourmaline - DPLA - e19db0d606de2b1989b4191d36813462 (page 5).jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Indicolite%20%28Blue%29%20Tourmaline%20-%20DPLA%20-%20e19db0d606de2b1989b4191d36813462%20%28page%205%29.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Indicolite_%28Blue%29_Tourmaline_-_DPLA_-_e19db0d606de2b1989b4191d36813462_%28page_5%29.jpg/960px-Indicolite_%28Blue%29_Tourmaline_-_DPLA_-_e19db0d606de2b1989b4191d36813462_%28page_5%29.jpg",
+    "author": "Unknown",
+    "license": "CC BY 4.0",
+    "used_by_skus": [
+      "TC-GEM-0313",
+      "TC-GEM-0317",
+      "TC-GEM-0347",
+      "TC-GEM-0383",
+      "TC-GEM-0394",
+      "TC-GEM-0406",
+      "TC-GEM-0449",
+      "TC-GEM-0463"
+    ],
+    "reused_from": "Indicolite Tourmaline"
+  },
+  "Prehnite Stalactite": {
+    "wikimedia_file": "Calcite-282257.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Calcite-282257.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Calcite-282257.jpg",
+    "author": "Robert M. Lavinsky",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0016",
+      "TC-MIN-0145",
+      "TC-MIN-0168",
+      "TC-MIN-0219",
+      "TC-MIN-0231"
+    ],
+    "reused_from": "Calcite Dog-Tooth Cluster"
+  },
+  "Rainbow Minerals Collection": {
+    "wikimedia_file": "Fluorescence in calcite.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Fluorescence%20in%20calcite.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Fluorescence_in_calcite.jpg/960px-Fluorescence_in_calcite.jpg",
+    "author": "Jan Pavelka",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-COL-0908",
+      "TC-COL-0911",
+      "TC-COL-0914",
+      "TC-COL-0935",
+      "TC-COL-0955",
+      "TC-COL-0963",
+      "TC-COL-0964",
+      "TC-COL-0987",
+      "TC-COL-0996"
+    ],
+    "reused_from": "Fluorescent Mineral Set"
+  },
+  "Rhodochrosite Stalactite Slice": {
+    "wikimedia_file": "Blauer Achat -- 2014 -- 2352.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Blauer%20Achat%20--%202014%20--%202352.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blauer_Achat_--_2014_--_2352.jpg/960px-Blauer_Achat_--_2014_--_2352.jpg",
+    "author": "An\u0131l \u00d6zta\u015f",
+    "license": "CC BY-SA 4.0",
+    "used_by_skus": [
+      "TC-MIN-0014",
+      "TC-MIN-0031",
+      "TC-MIN-0083",
+      "TC-MIN-0087",
+      "TC-MIN-0234"
+    ],
+    "reused_from": "Agate Slice"
+  },
+  "Ruby Crystal in Matrix": {
+    "wikimedia_file": "(Muzo) Emerald crystal in its matrix.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:%28Muzo%29%20Emerald%20crystal%20in%20its%20matrix.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/%28Muzo%29_Emerald_crystal_in_its_matrix.jpg/960px-%28Muzo%29_Emerald_crystal_in_its_matrix.jpg",
+    "author": "Didier Descouens",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-GEM-0301",
+      "TC-GEM-0314",
+      "TC-GEM-0336",
+      "TC-GEM-0366",
+      "TC-GEM-0389",
+      "TC-GEM-0404",
+      "TC-GEM-0450",
+      "TC-GEM-0454"
+    ],
+    "reused_from": "Emerald Crystal in Matrix"
+  },
+  "Smoky Quartz Elestial": {
+    "wikimedia_file": "Amethyst Druse.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Amethyst%20Druse.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Amethyst_Druse.jpg/960px-Amethyst_Druse.jpg",
+    "author": "Ra'ike (see also: de:Benutzer:Ra'ike)",
+    "license": "CC BY 2.5",
+    "used_by_skus": [
+      "TC-MIN-0007",
+      "TC-MIN-0090",
+      "TC-MIN-0141",
+      "TC-MIN-0144",
+      "TC-MIN-0277"
+    ],
+    "reused_from": "Amethyst Cluster"
+  },
+  "Topaz": {
+    "wikimedia_file": "2 blue topaz crystals.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:2%20blue%20topaz%20crystals.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/2_blue_topaz_crystals.jpg/960px-2_blue_topaz_crystals.jpg",
+    "author": "Mauro Cateb",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0025",
+      "TC-MIN-0070",
+      "TC-MIN-0073",
+      "TC-MIN-0226",
+      "TC-MIN-0276",
+      "TC-GEM-0358",
+      "TC-GEM-0364",
+      "TC-GEM-0372",
+      "TC-GEM-0408",
+      "TC-GEM-0417",
+      "TC-GEM-0428",
+      "TC-GEM-0441",
+      "TC-GEM-0474"
+    ],
+    "reused_from": "Blue Topaz Crystal"
+  },
+  "Trilobite": {
+    "wikimedia_file": "Limulus polyphemus (Atlantic horseshoe crab) (Sanibel Island, Florida, USA) 7.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Limulus%20polyphemus%20%28Atlantic%20horseshoe%20crab%29%20%28Sanibel%20Island%2C%20Florida%2C%20USA%29%207.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Limulus_polyphemus_%28Atlantic_horseshoe_crab%29_%28Sanibel_Island%2C_Florida%2C_USA%29_7.jpg/960px-Limulus_polyphemus_%28Atlantic_horseshoe_crab%29_%28Sanibel_Island%2C_Florida%2C_USA%29_7.jpg",
+    "author": "James St. John",
+    "license": "CC BY 2.0",
+    "used_by_skus": [
+      "TC-FOS-0514",
+      "TC-FOS-0522",
+      "TC-FOS-0539",
+      "TC-FOS-0555",
+      "TC-FOS-0563",
+      "TC-FOS-0580",
+      "TC-FOS-0587",
+      "TC-FOS-0595",
+      "TC-FOS-0624",
+      "TC-FOS-0626",
+      "TC-FOS-0633",
+      "TC-FOS-0635",
+      "TC-FOS-0654",
+      "TC-FOS-0666",
+      "TC-FOS-0670",
+      "TC-FOS-0688"
+    ],
+    "reused_from": "Horseshoe Crab"
+  },
+  "World Tour Collection": {
+    "wikimedia_file": "Meteorite collection at the Geological Museum Copenhagen.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Meteorite%20collection%20at%20the%20Geological%20Museum%20Copenhagen.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Meteorite_collection_at_the_Geological_Museum_Copenhagen.jpg/960px-Meteorite_collection_at_the_Geological_Museum_Copenhagen.jpg",
+    "author": "Charlotte S H Jensen",
+    "license": "CC BY-SA 2.0",
+    "used_by_skus": [
+      "TC-COL-0903",
+      "TC-COL-0916",
+      "TC-COL-0938",
+      "TC-COL-0956",
+      "TC-COL-0977",
+      "TC-COL-0981",
+      "TC-COL-0983",
+      "TC-COL-0994"
+    ],
+    "reused_from": "Meteorite Collectors Set"
+  },
+  "Wulfenite Crystal Plate": {
+    "wikimedia_file": "Vanadinite Crystals.jpg",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Vanadinite%20Crystals.jpg",
+    "thumb_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Vanadinite_Crystals.jpg/960px-Vanadinite_Crystals.jpg",
+    "author": "Lloyd James a.k.a physicsbrit",
+    "license": "CC BY-SA 3.0",
+    "used_by_skus": [
+      "TC-MIN-0080",
+      "TC-MIN-0119",
+      "TC-MIN-0126",
+      "TC-MIN-0193",
+      "TC-MIN-0236"
+    ],
+    "reused_from": "Vanadinite on Barite"
   }
 }
