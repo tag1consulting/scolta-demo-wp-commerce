@@ -83,6 +83,24 @@ header.wp-block-template-part {
   text-transform: uppercase;
 }
 
+/* Search icon between account and cart */
+.tc-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tc-stone);
+  padding: 0.5em;
+  line-height: 1;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+.tc-search-icon:hover {
+  color: var(--tc-gold) !important;
+}
+.tc-search-icon svg {
+  display: block;
+}
+
 .wp-block-navigation a {
   color: var(--tc-stone) !important;
   font-size: 0.9rem;
