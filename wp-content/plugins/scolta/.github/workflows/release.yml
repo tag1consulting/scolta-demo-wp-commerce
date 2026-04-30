@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Check out scolta-wp into 'package/' so that '../scolta-php' resolves correctly
+      - uses: actions/checkout@v4
+        with:
+          path: package
+
+      # Check out scolta-php at the same tag into 'scolta-php/'
+      - uses: actions/checkout@v4
+        with:
+          repository: tag1consulting/scolta-php
+          ref: ${{ github.ref_name }}
+          path: scolta-php
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl
+          coverage: none
+
+      - name: Refresh path-repo lock entry
+        working-directory: package
+        run: composer update tag1/scolta-php --no-dev --no-interaction
+
+      - name: Install dependencies (no dev)
+        working-directory: package
+        run: composer install --no-dev --prefer-dist --no-interaction
+
+      - name: Create release archive
+        working-directory: package
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          cd ..
+          mv package scolta-wp
+          zip -r scolta-wp-${VERSION}.zip scolta-wp/ \
+            --exclude "scolta-wp/.git*" \
+            --exclude "scolta-wp/tests/*" \
+            --exclude "scolta-wp/node_modules/*" \
+            --exclude "scolta-wp/.claude/*"
+
+      - name: Extract CHANGELOG entry
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          awk "/^## \[${VERSION}\]/{found=1; next} found && /^## \[/{exit} found{print}" \
+            scolta-wp/CHANGELOG.md > release-notes.txt
+          cat release-notes.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.txt
+          files: scolta-wp-*.zip
+          fail_on_unmatched_files: true
+
+  validate-zip:
+    name: Validate release archive
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Download release asset
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          for i in 1 2 3 4 5; do
+            gh release download "${GITHUB_REF_NAME}" \
+              --repo "${{ github.repository }}" \
+              --pattern "scolta-wp-${VERSION}.zip" \
+              --output scolta-wp.zip && break
+            echo "Retry $i/5..."
+            sleep 5
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate archive structure
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          unzip -l scolta-wp.zip > zip-contents.txt
+          cat zip-contents.txt
+
+          # Top-level directory must be scolta-wp/
+          if ! grep -qE '^[[:space:]]+[0-9].*scolta-wp/$' zip-contents.txt; then
+            echo "ERROR: Top-level directory is not scolta-wp/"
+            exit 1
+          fi
+
+          # vendor/autoload.php must be present
+          if ! grep -q 'scolta-wp/vendor/autoload.php' zip-contents.txt; then
+            echo "ERROR: vendor/autoload.php is missing from archive"
+            exit 1
+          fi
+
+          # Main plugin file must be present
+          if ! grep -q 'scolta-wp/scolta.php' zip-contents.txt; then
+            echo "ERROR: scolta.php is missing from archive"
+            exit 1
+          fi
+
+          echo "Archive structure OK: correct directory, vendor/autoload.php, scolta.php all present."

@@ -3,7 +3,7 @@
  * Plugin Name:       Scolta AI Search
  * Plugin URI:        https://www.tag1.com/scolta
  * Description:       Zero-infrastructure AI search with Pagefind, query expansion, summarization.
- * Version:           0.3.5
+ * Version:           0.3.7
  * Requires at least: 6.0
  *   — No WP 6.1+ APIs used. Verified: no wp_register_block_type_from_metadata()
  *     call-style, no Interactivity API, no wp_admin_notice(), no Plugin
@@ -20,7 +20,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCOLTA_VERSION', '0.3.5' );
+define( 'SCOLTA_VERSION', '0.3.7' );
 define( 'SCOLTA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_FILE', __FILE__ );
@@ -82,6 +82,7 @@ function scolta_activate(): void {
 	$defaults = array(
 		'ai_provider'                => 'anthropic',
 		'ai_model'                   => 'claude-sonnet-4-5-20250929',
+		'ai_expansion_model'         => '',
 		'ai_base_url'                => '',
 		'site_name'                  => get_bloginfo( 'name' ),
 		'site_description'           => 'website',
