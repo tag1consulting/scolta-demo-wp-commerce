@@ -8,7 +8,8 @@ mariadb_version: "10.11"
 docroot: ""
 timezone: America/New_York
 composer_version: "2"
-web_environment: []
+web_environment:
+  - SCOLTA_API_KEY=SCOLTA_API_KEY_PLACEHOLDER
 hooks:
   post-start:
     - exec: "cd /var/www/html/wp-content/plugins/scolta && composer install --no-interaction --no-dev"
