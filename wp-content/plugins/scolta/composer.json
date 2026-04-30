@@ -27,8 +27,8 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../scolta-php"
+            "type": "vcs",
+            "url": "https://github.com/tag1consulting/scolta-php"
         }
     ],
     "autoload": {
