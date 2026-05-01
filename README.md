@@ -127,6 +127,8 @@ ddev export-db --gzip --file=db/dump.sql.gz
 
 ## Updating WordPress / WooCommerce
 
+WooCommerce plugin files are committed to this repo (pinned at 10.7.0). This means every clone has a working WooCommerce installation immediately — no download from WordPress.org needed on `ddev start`.
+
 ```bash
 ddev wp core update
 ddev wp plugin update woocommerce
