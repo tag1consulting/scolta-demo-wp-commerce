@@ -38,6 +38,12 @@ if ( ! defined( 'DB_USER' ) && getenv( 'IS_DDEV_PROJECT' ) == 'true' && is_reada
 	require_once( $ddev_settings );
 }
 
+// Include for settings sourced from the container environment.
+$container_settings = __DIR__ . '/wp-config-container.php';
+if ( is_readable( $container_settings ) ) {
+	require_once( $container_settings );
+}
+
 /** Include wp-settings.php */
 if ( file_exists( ABSPATH . '/wp-settings.php' ) ) {
 	require_once ABSPATH . '/wp-settings.php';
