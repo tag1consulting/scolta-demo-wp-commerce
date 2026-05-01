@@ -159,7 +159,7 @@ RUN a2enmod rewrite remoteip
 
 COPY --from=composer --chown=1001:0 /app .
 
-RUN mv wp-config-container.php.example wp-config-container.php
+RUN mv wp-config-container.php wp-config.php
 
 USER 1001
 
