@@ -42,6 +42,7 @@ RUN apt-get update && \
     apt-get install -y \
       git \
       patch \
+      unzip \
       zip && \
     rm -rf /var/lib/apt/lists/*
 
@@ -55,6 +56,12 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer && \
 COPY . .
 
 RUN composer install -d wp-content/plugins/scolta --no-ansi --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader --prefer-dist
+
+RUN rm -rf wp-content/plugins/woocommerce && \
+    curl -L https://downloads.wordpress.org/plugin/woocommerce.10.7.0.zip \
+      -o /tmp/wc.zip && \
+    unzip /tmp/wc.zip -d wp-content/plugins/ && \
+    rm /tmp/wc.zip
 
 FROM php-base
 
