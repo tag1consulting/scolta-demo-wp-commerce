@@ -83,7 +83,7 @@ ENV HTTPD_MIN_SPARE_SERVERS=5
 ENV HTTPD_MAX_SPARE_SERVERS=10
 ENV HTTPD_MAX_REQUEST_WORKERS=50
 ENV HTTPD_MAX_CONNECTIONS_PER_CHILD=2000
-WORKDIR /app
+WORKDIR /var/www/html
 
 RUN apt-get update && \
     apt-get install -y \
@@ -124,8 +124,8 @@ RUN { \
 # AllowOverride All lets WP's .htaccess drive pretty-permalink rewrites.
 RUN { \
     echo '<VirtualHost *:8080>'; \
-    echo 'DocumentRoot /app'; \
-    echo '<Directory /app>'; \
+    echo 'DocumentRoot /var/www/html'; \
+    echo '<Directory /var/www/html>'; \
     echo '    Options FollowSymLinks'; \
     echo '    AllowOverride All'; \
     echo '    Require all granted'; \
@@ -163,6 +163,8 @@ RUN sed -i "s/^Listen 80/Listen 0.0.0.0:8080/" /etc/apache2/ports.conf && \
       chmod -R g+wX /run/apache2 /var/log/apache2
 
 RUN a2enmod rewrite remoteip
+
+RUN rm -rf /var/www/html && mkdir -p /var/www/html
 
 COPY --from=composer --chown=1001:0 /app .
 
