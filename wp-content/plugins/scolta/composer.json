@@ -12,6 +12,7 @@
     ],
     "require": {
         "php": ">=8.1",
+        "cweagans/composer-patches": "^1.7",
         "tag1/scolta-php": "^0.3.3"
     },
     "require-dev": {
@@ -46,6 +47,7 @@
     "config": {
         "allow-plugins": {
             "composer/installers": true,
+            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
         "audit": {
@@ -56,6 +58,12 @@
         }
     },
     "extra": {
-        "installer-name": "scolta"
+        "installer-name": "scolta",
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "tag1/scolta-php": {
+                "URL normalization and filters support (pending v0.3.10)": "patches/scolta-php-url-and-filters.patch"
+            }
+        }
     }
 }
