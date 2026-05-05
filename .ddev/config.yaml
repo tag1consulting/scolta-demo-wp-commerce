@@ -17,3 +17,4 @@ hooks:
     - exec: "wp option update siteurl 'https://terra-collecta.ddev.site' 2>/dev/null || true"
     - exec: "wp option update home 'https://terra-collecta.ddev.site' 2>/dev/null || true"
     - exec: "wp plugin activate woocommerce 2>/dev/null || echo 'WARNING: WooCommerce activation failed — check wp-content/plugins/woocommerce/ exists'"
+    - exec: "wp option patch insert scolta_settings preset ecommerce 2>/dev/null || true"
