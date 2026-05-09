@@ -130,15 +130,13 @@ class Scolta_CLI {
 		}
 
 		if ( $indexer === 'auto' ) {
-			$resolver = new PagefindBinary(
-				configuredPath: $settings['pagefind_binary'] ?? null,
-				projectDir: SCOLTA_PLUGIN_DIR,
-			);
-			if ( $resolver->resolve() === null ) {
-				\WP_CLI::log( 'Pagefind binary not available — using PHP indexer.' );
-				$this->do_build_php( $assoc_args, $settings );
-				return;
-			}
+			// Auto always uses the PHP indexer — it works on all PHP hosting
+			// environments without exec() or Node.js, uses less memory, and
+			// supports fast incremental re-indexing. Use --indexer=binary to
+			// use the Pagefind binary explicitly.
+			\WP_CLI::log( 'Using PHP indexer (auto default).' );
+			$this->do_build_php( $assoc_args, $settings );
+			return;
 		}
 
 		// Binary indexer pipeline.
@@ -178,16 +176,21 @@ class Scolta_CLI {
 			return;
 		}
 
-		// Stream content one post at a time — no full pre-load into RAM.
-		$exporter = new ContentExporter( $output_dir );
-		$items    = $exporter->filterItems( \Scolta_Content_Gatherer::gather() );
-
 		$intent = BuildIntentFactory::fromFlags( (bool) $resume, (bool) $restart, $total_count, $budget );
 
 		$logger       = new \Scolta_WP_CLI_Logger( (bool) $strict_errors );
 		$reporter     = new \Scolta_WP_CLI_Progress_Reporter();
 		$orchestrator = new IndexBuildOrchestrator( $state_dir, $output_dir, $this->get_hmac_secret() );
-		$report       = $orchestrator->build( $intent, $items, $logger, $reporter );
+
+		// Expose the timestamp manifest to the gatherer so unchanged posts are
+		// yielded as CachedContentReferences without loading post_content.
+		$ts_manifest = $force ? null : $orchestrator->getTimestampManifest();
+
+		// Stream content one post at a time — no full pre-load into RAM.
+		$exporter = new ContentExporter( $output_dir );
+		$items    = $exporter->filterItems( \Scolta_Content_Gatherer::gather( $ts_manifest, (bool) $force ) );
+
+		$report = $orchestrator->build( $intent, $items, $logger, $reporter, force: (bool) $force );
 
 		if ( $report->success ) {
 			$generation = (int) get_option( 'scolta_generation', 0 );
@@ -773,20 +776,20 @@ class Scolta_CLI {
 		);
 		$binary_status   = $resolver->status();
 		$indexer_setting = $settings['indexer'] ?? 'auto';
-		if ( $indexer_setting === 'php' ) {
-			$active_indexer = 'php (forced)';
+		if ( $indexer_setting === 'php' || $indexer_setting === 'auto' ) {
+			$active_indexer = 'php';
 		} elseif ( $indexer_setting === 'binary' ) {
 			$active_indexer = $binary_status['available'] ? 'binary' : 'binary (not found — check path)';
 		} else {
-			$active_indexer = $binary_status['available'] ? 'binary (auto-detected)' : 'php (binary not found)';
+			$active_indexer = 'php';
 		}
 		\WP_CLI::log( "  Active indexer: {$active_indexer}" );
-		if ( $binary_status['available'] ) {
-			\WP_CLI::log( "  Binary:         {$binary_status['message']}" );
-		} else {
-			\WP_CLI::warning( '  Binary:         NOT AVAILABLE' );
-			\WP_CLI::log( "  {$binary_status['message']}" );
-			if ( $active_indexer !== 'php (forced)' ) {
+		if ( $indexer_setting === 'binary' ) {
+			if ( $binary_status['available'] ) {
+				\WP_CLI::log( "  Binary:         {$binary_status['message']}" );
+			} else {
+				\WP_CLI::warning( '  Binary:         NOT AVAILABLE' );
+				\WP_CLI::log( "  {$binary_status['message']}" );
 				\WP_CLI::log( '  To upgrade: npm install -g pagefind  OR  wp scolta download-pagefind' );
 			}
 		}

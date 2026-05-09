@@ -4,9 +4,68 @@ All notable changes to scolta-wp will be documented in this file.
 
 This project uses [Semantic Versioning](https://semver.org/). Major versions are synchronized across all Scolta packages.
 
+## [1.0.0] Unreleased
+
+First stable release — all features from 0.3.x promoted to 1.0 API surface.
+
+### Changed
+- Added `extra.branch-alias` (`dev-main` → `1.0.x-dev`) so consumers can resolve this package with `^1.0@dev` from a VCS repository.
+
 ## [Unreleased]
 
-_No changes yet._
+### Added
+- **Shortcode now passes `currentLanguage` to the JS config.** `get_locale()` is used to detect the WordPress site locale (e.g. `en_US` → `en`), and the 2-letter language code is added to `window.scolta.currentLanguage`. `scolta.js` reads this value to auto-scope search results to the active language on first load. The auto-filter only activates when `ai_languages` has more than one entry, so single-language sites are unaffected.
+
+### Added
+- **Amazee.ai trial is provisioned automatically at plugin activation.** `scolta_activate()` schedules a `scolta_amazee_provision` Action Scheduler action (deferred 5 s) so provisioning does not block the activation HTTP request. When Action Scheduler is unavailable, `scolta_auto_provision_amazee()` is called synchronously as a fallback. The helper delegates to `AutoProvisioner::ensureAiAvailable()` from scolta-php. It is a no-op when `SCOLTA_API_KEY` is set via env var, `$_ENV`, `$_SERVER`, or `wp-config.php` constant, or when credentials are already stored. On success, `scolta_settings[ai_model]` and `scolta_settings[ai_expansion_model]` are updated via the `onModelsResolved` callback.
+
+### Fixed
+- **`scolta.js` URL stripping fix: pagefindBase stored as path-only.** In the previous sync, `pagefindBase` was still stored as an absolute URL (with origin); `pagefind.js` returns root-relative result URLs so the prefix check never matched. Now strips the origin via `new URL().pathname` when the pagefind path is absolute.
+
+- **Result links resolved against pagefind base path instead of site root.** When the PHP indexer was active, `pagefind.js` derived its `baseUrl` from its own script location (`/wp-content/uploads/scolta/pagefind/pagefind/`), causing root-relative result URLs like `/product/slug/` to be returned as `/wp-content/uploads/scolta/pagefind/product/slug/` — a 404 on every result. The bundled `scolta.js` now records `pagefindBase` after initialization and strips it from every result URL via `resolveUrl()`. Additionally adds multilingual index merging, language/filter label display, and performance improvements to the JS layer from `scolta-php`.
+
+- **Stale prompt cache after plugin update.** `scolta_resolved_prompts` was only refreshed when settings were explicitly saved, so upgraded sites served outdated prompt text until an admin re-saved the settings page. A new `scolta_refresh_prompt_cache_if_stale()` function hooked on `plugins_loaded` rebuilds the cache automatically whenever `SCOLTA_VERSION` doesn't match the stored `scolta_prompt_cache_version`. Fixes #49.
+
+### Added
+- **Amazee.ai auto-configuration: best available Claude model is applied after trial provisioning.** `ajax_start_trial()` now writes the auto-selected Sonnet to `scolta_settings[ai_model]` (if still at the default `claude-sonnet-4-5-20250929`) and Haiku to `ai_expansion_model` (if currently empty) via `update_option()`. A dismissible admin notice confirms the selected model. Model selection delegates to `AmazeeModelResolver` injected into `AmazeeTrialProvisioner`.
+
+### Added
+- **Timestamp-based rebuild optimization: skip unchanged post content loads.** `Scolta_Content_Gatherer::gather()` now accepts an optional `?TimestampManifest $manifest` and `bool $force` parameter. When a manifest is provided and a post's `post_modified_gmt` timestamp matches the stored value, the gatherer yields a `CachedContentReference` instead of loading `post_content` — no `apply_filters('the_content')` call is made for that post. A new `get_post_timestamps()` static method runs a single direct `$wpdb` query to fetch modification timestamps for a batch of IDs without constructing full `WP_Post` objects. The WP-CLI `do_build_php()` method obtains the manifest from `$orchestrator->getTimestampManifest()` and passes it to `gather()`; `--force` passes `null` to bypass the optimization.
+
+### Added
+- **Amazee.ai integration (Phase 3).** Scolta can now connect to the [Amazee.ai](https://amazee.ai) privacy-respecting AI provider. New classes: `Scolta_Amazee_Config_Storage` (stores LiteLLM credentials with AES-256-CBC encryption in WordPress options), `Scolta_Amazee_Budget_Handler` (throttled admin notice on budget exceeded), and `Scolta_Amazee_Admin_Page` (multi-step admin UI with AJAX trial/sign-in/region flow at *Settings → Scolta → Amazee.ai*). `Scolta_Ai_Service::from_options()` detects stored Amazee credentials and automatically routes AI calls through the LiteLLM proxy.
+
+### Fixed
+- **WordPress gatherer now flushes all relevant object cache groups between batches.** Previously only the `posts` group was flushed; `post_meta`, `terms`, and `term_relationships` accumulated across the entire build, inflating RSS proportional to corpus size. Added a `wp_cache_flush()` fallback for WordPress < 6.1 / sites without an object cache plugin. Also added `gc_collect_cycles()` between batches (matching the Drupal gatherer's existing cleanup) to reclaim circular reference chains from WP_Post objects and filter callbacks.
+
+### Changed
+- **`indexer: auto` now always uses the PHP indexer.** Previously `auto` tried the Pagefind binary first and fell back to PHP. The PHP indexer works on all WordPress hosting environments without `exec()` or Node.js, uses less memory, and supports fast incremental re-indexing. Use `indexer: binary` to keep the old binary-first behaviour.
+- **`wp scolta build --force` now bypasses the per-item token cache** in addition to the existing fingerprint check. Previously `--force` only skipped the `shouldBuild()` fingerprint comparison; the page-word cache (new in this release, provided by scolta-php) was still consulted. With this change, `--force` triggers a full re-tokenization of every content item.
+
+## [0.3.10] - 2026-05-05
+
+### Fixed
+- **WASM merge URL lookup now handles normalized URL formats** — multi-key Map with normalized variants prevents result stub fallback; misses logged as `[scolta:merge] WASM URL lookup missed`.
+- **Title deduplication threshold lowered to 0.6 Jaccard** — reduces duplicate titles slipping through, with secondary condition for short-title pairs sharing ≥3 words.
+- **AI Overview headings now render as HTML** — `#`, `##`, and `###` markdown headings in AI summaries were falling through to `<p>` tags and displaying as raw `#` text. `formatSummary()` now maps them to `<h3>`/`<h4>`/`<h5>` elements.
+- **AI summary now describes post-expansion results** — `summarizeResults()` was firing in parallel with the expansion merge, so the AI described the Phase 1 literal-keyword ranking while the displayed results showed the semantically-reordered Phase 2 ranking. Summarization is now deferred until after `mergeExpandedSearchResults()` completes. A `searchVersion` staleness check prevents summarizing results from a superseded search.
+- **Relative URLs from pagefind index are absolutized before use** — both the summarize API call and result card `<a>` href attributes now prepend `window.location.origin` when the stored URL starts with `/`, so links work correctly when `ContentItem` stores relative paths.
+- **`stripHtml()` now decodes HTML entities** — the previous regex-only implementation left entities like `&#8217;` intact, causing `escapeHtml()` to double-encode them and display literal entity strings in titles and excerpts. `stripHtml()` now uses DOM parsing to both strip tags and decode entities.
+- **AI summary text invisible on themes with element-level `p { color }` rules** — themes that apply `p { color: ... }` or `li { color: ... }` at element specificity (0,0,1) overrode inherited color from `.scolta-ai-summary-text`. Added explicit `color: var(--scolta-text)` on `.scolta-ai-summary-text p` and `.scolta-ai-summary-text li` to win the specificity race.
+- **`get_the_title()` double-encoding of HTML entities** — WordPress's `wptexturize()` converts straight quotes to HTML entities (`&#8216;` etc.), and when `PagefindHtmlBuilder` called `htmlspecialchars()` the `&` was re-encoded to `&amp;`, rendering `&amp;#8216;` as literal text. `get_the_title()` output is now decoded with `html_entity_decode(..., ENT_QUOTES | ENT_HTML5, 'UTF-8')` before being passed to `ContentItem`.
+
+### Changed
+- **`scolta_content_item` filter now fires in both indexer pipelines** — previously the filter only fired in the PHP indexer pipeline (via `Scolta_Content_Gatherer`). It now also fires in the binary indexer pipeline (via `Scolta_Content_Source`). Returning `null` from the filter excludes the post from indexing in both pipelines. Returning a modified `ContentItem` replaces the item to be indexed. This is the recommended hook for demo sites to exclude About, Contact, and other non-content pages.
+
+## [0.3.9] - 2026-05-02
+
+### Added
+- **Site Type selector in admin settings page**: A new "Site Type" section appears between Pagefind and Scoring. Administrators pick the closest preset for their site from a dropdown built dynamically from `ScoltaConfig::getPresets()`. The selected preset description is shown inline and updates immediately on change. When the preset is changed and saved, the preset's scoring values are applied to the individual scoring fields (subsequent saves with the same preset preserve any manual field overrides). The Scoring section description reflects whether a preset is active. Requires scolta-php ≥ 0.3.9 for `getPresets()` / `getPresetValues()`.
+
+## [0.3.8] - 2026-05-01
+
+### Note
+- Version synchronized with scolta-php 0.3.8. No WordPress-specific changes in this release.
 
 ## [0.3.7] - 2026-04-30
 
