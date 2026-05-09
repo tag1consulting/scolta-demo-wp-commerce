@@ -1,7 +1,7 @@
 /*
 Theme Name: Terra Collecta
 Theme URI: https://terra-collecta.ddev.site
-Description: Premium geological specimen shop — child theme of Twenty Twenty-Five. Deep charcoal, warm gold, stone grey.
+Description: Premium geological specimen shop — child theme of Twenty Twenty-Five. Warm earth tones, light, museum-quality.
 Author: Tag1 Consulting / Scolta Demo
 Author URI: https://tag1.com
 Template: twentytwentyfive
@@ -13,55 +13,64 @@ Tags: woocommerce, geological, premium, child-theme
 */
 
 /* ============================================================
+   GOOGLE FONTS
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap');
+
+/* ============================================================
    CSS CUSTOM PROPERTIES
    ============================================================ */
 :root {
-  --tc-charcoal:    #1a1a2e;
-  --tc-charcoal-80: rgba(26, 26, 46, 0.80);
-  --tc-gold:        #c9a45c;
-  --tc-gold-light:  #e0c080;
-  --tc-stone:       #e0dcd3;
-  --tc-stone-dark:  #b8b4ab;
-  --tc-white:       #faf9f7;
-  --tc-dark-bg:     #0f0f1e;
-  --tc-card-bg:     #23233a;
-  --tc-border:      rgba(201, 164, 92, 0.25);
+  --tc-bg:          #faf8f5;
+  --tc-bg-alt:      #f2ede6;
+  --tc-bg-dark:     #2c2c2e;
+  --tc-text:        #2c2c2e;
+  --tc-text-muted:  #6b6560;
+  --tc-accent:      #b8704b;
+  --tc-accent-dark: #8f5535;
+  --tc-border:      #e0dbd4;
+  --tc-card-bg:     #ffffff;
+  --tc-badge-bg:    #e8e3db;
 
-  --tc-font-serif:  'Georgia', 'Cambria', 'Times New Roman', serif;
-  --tc-font-sans:   system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tc-font-heading: 'DM Serif Display', Georgia, serif;
+  --tc-font-body:    'Inter', system-ui, -apple-system, sans-serif;
 
-  --tc-radius:      4px;
-  --tc-radius-lg:   8px;
-  --tc-shadow:      0 4px 24px rgba(0,0,0,0.4);
-  --tc-shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+  --tc-radius:      6px;
+  --tc-radius-lg:   10px;
+  --tc-shadow:      0 4px 20px rgba(44, 44, 46, 0.12);
+  --tc-shadow-card: 0 2px 8px rgba(44, 44, 46, 0.08);
+  --tc-shadow-hover: 0 8px 32px rgba(44, 44, 46, 0.16);
 }
 
 /* ============================================================
    GLOBAL RESET / BASE
    ============================================================ */
 html, body {
-  background-color: var(--tc-charcoal);
-  color: var(--tc-stone);
-  font-family: var(--tc-font-sans);
+  background-color: var(--tc-bg);
+  color: var(--tc-text);
+  font-family: var(--tc-font-body);
   font-size: 16px;
   line-height: 1.7;
 }
 
 h1, h2, h3, h4, h5, h6,
 .woocommerce h1, .woocommerce h2 {
-  font-family: var(--tc-font-serif);
-  color: var(--tc-stone);
-  letter-spacing: 0.02em;
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 
 a {
-  color: var(--tc-gold);
+  color: var(--tc-accent);
   text-decoration: none;
   transition: color 0.2s ease;
 }
-a:hover { color: var(--tc-gold-light); }
+a:hover { color: var(--tc-accent-dark); }
 
-p { margin-bottom: 1.2em; color: var(--tc-stone); }
+p { margin-bottom: 1.2em; color: var(--tc-text); }
+
+img { max-width: 100%; height: auto; }
 
 /* ============================================================
    SITE HEADER
@@ -69,57 +78,75 @@ p { margin-bottom: 1.2em; color: var(--tc-stone); }
 .wp-block-template-part[data-area="header"],
 .site-header,
 header.wp-block-template-part {
-  background: var(--tc-dark-bg);
-  border-bottom: 1px solid var(--tc-border);
-  padding: 1rem 2rem;
+  background: var(--tc-bg-dark);
+  border-bottom: none;
+  padding: 0 2rem;
 }
 
 .site-title,
 .wp-block-site-title a {
-  font-family: var(--tc-font-serif) !important;
-  font-size: 1.6rem !important;
-  color: var(--tc-gold) !important;
-  letter-spacing: 0.1em;
+  font-family: var(--tc-font-heading) !important;
+  font-size: 1.5rem !important;
+  color: #faf8f5 !important;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* Search icon between account and cart */
+/* Search icon */
 .tc-search-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--tc-stone);
+  color: #c8c4be;
   padding: 0.5em;
   line-height: 1;
   transition: color 0.2s ease;
   text-decoration: none;
 }
 .tc-search-icon:hover {
-  color: var(--tc-gold) !important;
+  color: #faf8f5 !important;
 }
 .tc-search-icon svg {
   display: block;
 }
 
 .wp-block-navigation a {
-  color: var(--tc-stone) !important;
-  font-size: 0.9rem;
-  letter-spacing: 0.06em;
+  color: #c8c4be !important;
+  font-size: 0.85rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  font-family: var(--tc-font-body);
+  font-weight: 500;
 }
-.wp-block-navigation a:hover { color: var(--tc-gold) !important; }
+.wp-block-navigation a:hover { color: #faf8f5 !important; }
+
+/* WooCommerce icons in header (cart, account) */
+.wc-block-cart__icon,
+.wc-block-customer-account__account-icon {
+  color: #c8c4be;
+}
 
 /* ============================================================
    SITE FOOTER
    ============================================================ */
 footer.wp-block-template-part,
 .site-footer {
-  background: var(--tc-dark-bg);
-  border-top: 1px solid var(--tc-border);
-  color: var(--tc-stone-dark);
+  background: var(--tc-bg-dark);
+  border-top: none;
+  color: #8a857f;
   font-size: 0.85rem;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   text-align: center;
+  font-family: var(--tc-font-body);
+}
+
+footer.wp-block-template-part a,
+.site-footer a {
+  color: #c8c4be;
+}
+footer.wp-block-template-part a:hover,
+.site-footer a:hover {
+  color: #faf8f5;
 }
 
 /* ============================================================
@@ -127,8 +154,8 @@ footer.wp-block-template-part,
    ============================================================ */
 .woocommerce ul.products {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.75rem;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -139,116 +166,171 @@ footer.wp-block-template-part,
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--tc-shadow-card);
+}
+
+.woocommerce ul.products li.product:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tc-shadow-hover);
+}
+
+/* Product image — proportional, not fixed height */
+.woocommerce ul.products li.product a.woocommerce-loop-product__link img,
+.woocommerce ul.products li.product a img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+.woocommerce ul.products li.product:hover a img {
+  opacity: 0.95;
+}
+
+/* Card body */
+.woocommerce ul.products li.product .woocommerce-loop-product__link {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.woocommerce ul.products li.product:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--tc-shadow);
+/* Category badge */
+.tc-category-badge {
+  display: inline-block;
+  background: var(--tc-badge-bg);
+  color: var(--tc-text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25em 0.65em;
+  border-radius: 3px;
+  margin: 0.85rem 1rem 0.35rem;
+  font-family: var(--tc-font-body);
+  align-self: flex-start;
 }
 
-.woocommerce ul.products li.product a img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  display: block;
-}
-
+/* Product name */
 .woocommerce ul.products li.product .woocommerce-loop-product__title {
-  font-family: var(--tc-font-serif);
-  font-size: 0.95rem;
-  color: var(--tc-stone);
-  padding: 0.75rem 1rem 0.25rem;
-  line-height: 1.4;
+  font-family: var(--tc-font-heading);
+  font-size: 1rem;
+  color: var(--tc-text);
+  padding: 0 1rem 0.25rem;
+  line-height: 1.35;
+  margin: 0;
 }
 
+/* Key scientific detail */
+.tc-key-detail {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--tc-text-muted);
+  font-family: var(--tc-font-body);
+  padding: 0 1rem 0.5rem;
+  font-weight: 500;
+}
+
+/* Price */
 .woocommerce ul.products li.product .price {
-  color: var(--tc-gold);
+  color: var(--tc-accent);
   font-size: 1rem;
   font-weight: 600;
-  padding: 0 1rem 0.5rem;
+  padding: 0.25rem 1rem 0.5rem;
+  font-family: var(--tc-font-body);
 }
 
+/* Add to cart button — subtle, reveals on hover */
 .woocommerce ul.products li.product .button {
   margin: auto 1rem 1rem;
   display: block;
   background: transparent;
-  border: 1px solid var(--tc-gold);
-  color: var(--tc-gold);
+  border: 1.5px solid var(--tc-border);
+  color: var(--tc-text-muted);
   border-radius: var(--tc-radius);
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  padding: 0.55rem 1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-align: center;
-  transition: background 0.2s, color 0.2s;
+  font-family: var(--tc-font-body);
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
   cursor: pointer;
 }
+.woocommerce ul.products li.product:hover .button,
 .woocommerce ul.products li.product .button:hover {
-  background: var(--tc-gold);
-  color: var(--tc-charcoal);
+  background: var(--tc-accent);
+  border-color: var(--tc-accent);
+  color: #fff;
 }
 
 /* ============================================================
    WOOCOMMERCE — SINGLE PRODUCT
    ============================================================ */
 .woocommerce div.product {
-  background: var(--tc-charcoal);
+  background: var(--tc-bg);
 }
 
 .woocommerce div.product .product_title {
-  font-family: var(--tc-font-serif);
-  font-size: 2rem;
-  color: var(--tc-stone);
+  font-family: var(--tc-font-heading);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  color: var(--tc-text);
   margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .woocommerce div.product p.price,
 .woocommerce div.product span.price {
-  color: var(--tc-gold);
+  color: var(--tc-accent);
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
+  font-family: var(--tc-font-body);
 }
 
 .woocommerce div.product .woocommerce-product-details__short-description {
-  color: var(--tc-stone-dark);
+  color: var(--tc-text);
   font-size: 1rem;
-  line-height: 1.7;
-  border-left: 3px solid var(--tc-gold);
+  line-height: 1.75;
+  border-left: 3px solid var(--tc-accent);
   padding-left: 1rem;
-  margin: 1rem 0;
+  margin: 1.25rem 0;
 }
 
 /* Product tabs */
 .woocommerce div.product .woocommerce-tabs ul.tabs {
-  border-bottom: 1px solid var(--tc-border);
+  border-bottom: 2px solid var(--tc-border);
   padding: 0;
   list-style: none;
   display: flex;
   gap: 0;
+  margin-bottom: 0;
 }
 .woocommerce div.product .woocommerce-tabs ul.tabs li {
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin: 0;
+  border-bottom: 3px solid transparent;
+  margin: 0 0 -2px;
 }
 .woocommerce div.product .woocommerce-tabs ul.tabs li a {
-  color: var(--tc-stone-dark);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  color: var(--tc-text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  font-family: var(--tc-font-body);
+  font-weight: 500;
   padding: 0.75rem 1.5rem;
   display: block;
 }
 .woocommerce div.product .woocommerce-tabs ul.tabs li.active {
-  border-bottom: 2px solid var(--tc-gold);
+  border-bottom-color: var(--tc-accent);
 }
 .woocommerce div.product .woocommerce-tabs ul.tabs li.active a,
 .woocommerce div.product .woocommerce-tabs ul.tabs li a:hover {
-  color: var(--tc-gold);
+  color: var(--tc-accent);
 }
 .woocommerce div.product .woocommerce-tabs .panel {
   background: var(--tc-card-bg);
@@ -256,6 +338,7 @@ footer.wp-block-template-part,
   border-top: none;
   padding: 2rem;
   border-radius: 0 0 var(--tc-radius-lg) var(--tc-radius-lg);
+  box-shadow: var(--tc-shadow-card);
 }
 
 /* Scientific details table */
@@ -264,23 +347,27 @@ footer.wp-block-template-part,
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.9rem;
+  font-family: var(--tc-font-body);
 }
 .tc-scientific-table th,
 .tc-scientific-table td {
-  padding: 0.6rem 1rem;
+  padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--tc-border);
   text-align: left;
 }
 .tc-scientific-table th {
-  color: var(--tc-gold);
-  font-family: var(--tc-font-serif);
+  color: var(--tc-text-muted);
+  font-family: var(--tc-font-heading);
   font-weight: normal;
   font-style: italic;
   width: 40%;
+  font-size: 0.95rem;
 }
 .tc-scientific-table td {
-  color: var(--tc-stone);
-  font-family: var(--tc-font-sans);
+  color: var(--tc-text);
+}
+.tc-scientific-table tr:hover {
+  background: var(--tc-bg-alt);
 }
 .tc-scientific-table tr:last-child th,
 .tc-scientific-table tr:last-child td {
@@ -289,63 +376,91 @@ footer.wp-block-template-part,
 
 /* Section headings within product */
 .tc-section-heading {
-  font-family: var(--tc-font-serif);
-  color: var(--tc-gold);
-  font-size: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+  font-size: 1.1rem;
   margin: 2rem 0 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--tc-border);
 }
 
-/* Add to cart button */
+/* Add to cart — single product */
 .woocommerce .single_add_to_cart_button,
 .woocommerce #respond input#submit,
-.woocommerce a.button,
-.woocommerce button.button {
-  background-color: var(--tc-gold) !important;
-  color: var(--tc-charcoal) !important;
+.woocommerce a.button.alt,
+.woocommerce button.button.alt {
+  background-color: var(--tc-accent) !important;
+  color: #fff !important;
   border: none !important;
   border-radius: var(--tc-radius) !important;
+  font-family: var(--tc-font-body) !important;
   font-size: 0.9rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 0.75rem 2rem !important;
-  font-weight: 700;
+  padding: 0.85rem 2.5rem !important;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
 }
 .woocommerce .single_add_to_cart_button:hover {
-  background-color: var(--tc-gold-light) !important;
+  background-color: var(--tc-accent-dark) !important;
+}
+
+/* General WooCommerce buttons */
+.woocommerce a.button,
+.woocommerce button.button {
+  background-color: var(--tc-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--tc-radius) !important;
+  font-family: var(--tc-font-body) !important;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.woocommerce a.button:hover,
+.woocommerce button.button:hover {
+  background-color: var(--tc-accent-dark) !important;
+  color: #fff !important;
 }
 
 /* ============================================================
    WOOCOMMERCE — CART & CHECKOUT
    ============================================================ */
+.woocommerce-cart,
+.woocommerce-checkout {
+  background: var(--tc-bg);
+}
+
 .woocommerce-cart table.shop_table,
 .woocommerce-checkout table.shop_table {
   background: var(--tc-card-bg);
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
   overflow: hidden;
+  box-shadow: var(--tc-shadow-card);
 }
 
 .woocommerce-cart table.shop_table th,
 .woocommerce-checkout table.shop_table th {
-  background: var(--tc-dark-bg);
-  color: var(--tc-gold);
-  font-family: var(--tc-font-serif);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  background: var(--tc-bg-alt);
+  color: var(--tc-text-muted);
+  font-family: var(--tc-font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  font-weight: 600;
   border-bottom: 1px solid var(--tc-border);
 }
 
 .woocommerce-cart table.shop_table td,
 .woocommerce-checkout table.shop_table td {
   border-bottom: 1px solid var(--tc-border);
-  color: var(--tc-stone);
+  color: var(--tc-text);
+  font-family: var(--tc-font-body);
 }
 
 /* Order total */
@@ -354,16 +469,17 @@ footer.wp-block-template-part,
   background: var(--tc-card-bg);
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
-  padding: 1.5rem;
+  padding: 1.75rem;
+  box-shadow: var(--tc-shadow-card);
 }
 .woocommerce-cart .cart_totals h2,
 .woocommerce-checkout #order_review_heading {
-  color: var(--tc-gold);
-  font-family: var(--tc-font-serif);
-  font-size: 1.1rem;
+  color: var(--tc-text);
+  font-family: var(--tc-font-heading);
+  font-size: 1.25rem;
   border-bottom: 1px solid var(--tc-border);
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
 /* ============================================================
@@ -375,26 +491,37 @@ footer.wp-block-template-part,
   background: var(--tc-card-bg);
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
-  padding: 1.5rem;
+  padding: 1.75rem;
   margin-bottom: 1.5rem;
+  box-shadow: var(--tc-shadow-card);
 }
 
 .woocommerce form .form-row input.input-text,
 .woocommerce form .form-row textarea,
 .woocommerce form .form-row select {
-  background: var(--tc-charcoal) !important;
-  border: 1px solid var(--tc-border) !important;
-  color: var(--tc-stone) !important;
+  background: var(--tc-bg) !important;
+  border: 1.5px solid var(--tc-border) !important;
+  color: var(--tc-text) !important;
   border-radius: var(--tc-radius) !important;
-  padding: 0.6rem 1rem !important;
+  padding: 0.65rem 1rem !important;
   width: 100%;
-  font-family: var(--tc-font-sans);
+  font-family: var(--tc-font-body);
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.woocommerce form .form-row input.input-text:focus,
+.woocommerce form .form-row textarea:focus,
+.woocommerce form .form-row select:focus {
+  border-color: var(--tc-accent) !important;
+  outline: none;
 }
 
 .woocommerce form .form-row label {
-  color: var(--tc-stone-dark);
-  font-size: 0.85rem;
+  color: var(--tc-text-muted);
+  font-size: 0.82rem;
   letter-spacing: 0.04em;
+  font-weight: 500;
+  font-family: var(--tc-font-body);
 }
 
 /* ============================================================
@@ -404,7 +531,8 @@ footer.wp-block-template-part,
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 20, 0.92);
+  background: rgba(44, 44, 46, 0.7);
+  backdrop-filter: blur(4px);
   z-index: 99999;
   align-items: center;
   justify-content: center;
@@ -418,10 +546,10 @@ footer.wp-block-template-part,
   background: var(--tc-card-bg);
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
-  max-width: 560px;
+  max-width: 520px;
   width: 100%;
   padding: 3rem;
-  box-shadow: var(--tc-shadow);
+  box-shadow: 0 20px 60px rgba(44, 44, 46, 0.2);
   text-align: center;
   position: relative;
 }
@@ -433,89 +561,151 @@ footer.wp-block-template-part,
 }
 
 #tc-demo-modal h2 {
-  font-family: var(--tc-font-serif);
-  font-size: 1.6rem;
-  color: var(--tc-gold);
+  font-family: var(--tc-font-heading);
+  font-size: 1.7rem;
+  color: var(--tc-text);
   margin-bottom: 1rem;
 }
 
 #tc-demo-modal p {
-  color: var(--tc-stone);
-  font-size: 1rem;
-  line-height: 1.7;
+  color: var(--tc-text);
+  font-size: 0.97rem;
+  line-height: 1.75;
   margin-bottom: 1.5rem;
 }
 
 #tc-demo-modal .tc-modal-tagline {
-  font-family: var(--tc-font-serif);
+  font-family: var(--tc-font-heading);
   font-style: italic;
-  color: var(--tc-stone-dark);
-  font-size: 0.9rem;
+  color: var(--tc-text-muted);
+  font-size: 0.95rem;
   margin-bottom: 2rem;
 }
 
 #tc-demo-modal .tc-modal-btn {
   display: inline-block;
-  background: var(--tc-gold);
-  color: var(--tc-charcoal);
+  background: var(--tc-accent);
+  color: #fff;
   border: none;
   border-radius: var(--tc-radius);
-  padding: 0.85rem 2.5rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  padding: 0.9rem 2.5rem;
+  font-family: var(--tc-font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s;
   text-decoration: none;
 }
 #tc-demo-modal .tc-modal-btn:hover {
-  background: var(--tc-gold-light);
-  color: var(--tc-charcoal);
+  background: var(--tc-accent-dark);
+  color: #fff;
 }
 
 /* ============================================================
    HOMEPAGE HERO
    ============================================================ */
 .tc-hero {
-  background: linear-gradient(135deg, var(--tc-dark-bg) 0%, var(--tc-charcoal) 60%, #1e1a30 100%);
-  padding: 6rem 2rem;
+  background: var(--tc-bg-alt);
+  padding: 5rem 2rem 4rem;
   text-align: center;
   border-bottom: 1px solid var(--tc-border);
 }
 
 .tc-hero h1 {
-  font-family: var(--tc-font-serif);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  color: var(--tc-stone);
-  letter-spacing: 0.04em;
+  font-family: var(--tc-font-heading);
+  font-size: clamp(2.2rem, 5vw, 3.75rem);
+  color: var(--tc-text);
+  letter-spacing: 0.01em;
   margin-bottom: 1rem;
+  line-height: 1.15;
 }
 
 .tc-hero p.subtitle {
-  color: var(--tc-stone-dark);
+  color: var(--tc-text-muted);
   font-size: 1.1rem;
-  max-width: 600px;
+  max-width: 580px;
   margin: 0 auto 2.5rem;
   line-height: 1.7;
+  font-family: var(--tc-font-body);
+}
+
+/* Homepage Scolta search bar */
+.tc-hero-search {
+  max-width: 620px;
+  margin: 0 auto 2.5rem;
+  display: flex;
+  align-items: stretch;
+  border: 2px solid var(--tc-border);
+  border-radius: var(--tc-radius-lg);
+  overflow: hidden;
+  background: var(--tc-card-bg);
+  box-shadow: var(--tc-shadow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tc-hero-search:focus-within {
+  border-color: var(--tc-accent);
+  box-shadow: 0 4px 24px rgba(184, 112, 75, 0.15);
+}
+
+.tc-hero-search input[type="search"],
+.tc-hero-search input[type="text"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 1rem 1.25rem;
+  font-family: var(--tc-font-body);
+  font-size: 1rem;
+  color: var(--tc-text);
+  outline: none;
+}
+.tc-hero-search input::placeholder {
+  color: #aaa8a3;
+}
+.tc-hero-search button {
+  background: var(--tc-accent);
+  color: #fff;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-family: var(--tc-font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.tc-hero-search button:hover {
+  background: var(--tc-accent-dark);
 }
 
 .tc-hero .tc-cta-btn {
   display: inline-block;
-  background: var(--tc-gold);
-  color: var(--tc-charcoal);
-  padding: 1rem 2.5rem;
+  background: var(--tc-accent);
+  color: #fff;
+  padding: 0.9rem 2.5rem;
   border-radius: var(--tc-radius);
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
+  font-family: var(--tc-font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   transition: background 0.2s;
   text-decoration: none;
 }
 .tc-hero .tc-cta-btn:hover {
-  background: var(--tc-gold-light);
-  color: var(--tc-charcoal);
+  background: var(--tc-accent-dark);
+  color: #fff;
+}
+
+/* Search hint text under the search bar */
+.tc-hero-search-hint {
+  font-size: 0.78rem;
+  color: var(--tc-text-muted);
+  margin-top: 0.6rem;
+  font-family: var(--tc-font-body);
 }
 
 /* ============================================================
@@ -524,28 +714,34 @@ footer.wp-block-template-part,
 .tc-category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-  padding: 2rem;
+  gap: 1.25rem;
+  padding: 2.5rem 2rem;
 }
 
 .tc-category-card {
   background: var(--tc-card-bg);
   border: 1px solid var(--tc-border);
   border-radius: var(--tc-radius-lg);
-  padding: 1.5rem 1rem;
+  padding: 1.75rem 1rem;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
   text-decoration: none;
+  box-shadow: var(--tc-shadow-card);
 }
 .tc-category-card:hover {
   transform: translateY(-3px);
-  box-shadow: var(--tc-shadow-card);
+  box-shadow: var(--tc-shadow-hover);
+  border-color: var(--tc-accent);
 }
-.tc-category-card .icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.tc-category-card .icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.65rem;
+  display: block;
+}
 .tc-category-card .label {
-  font-family: var(--tc-font-serif);
-  color: var(--tc-stone);
-  font-size: 0.95rem;
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+  font-size: 1rem;
 }
 
 /* ============================================================
@@ -553,28 +749,30 @@ footer.wp-block-template-part,
    ============================================================ */
 .woocommerce nav.woocommerce-pagination ul {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   list-style: none;
   padding: 0;
   justify-content: center;
-  margin: 2rem 0;
+  margin: 2.5rem 0;
 }
 .woocommerce nav.woocommerce-pagination ul li a,
 .woocommerce nav.woocommerce-pagination ul li span {
   display: block;
-  padding: 0.5rem 0.875rem;
-  border: 1px solid var(--tc-border);
+  padding: 0.5rem 0.9rem;
+  border: 1.5px solid var(--tc-border);
   border-radius: var(--tc-radius);
-  color: var(--tc-stone-dark);
+  color: var(--tc-text-muted);
   font-size: 0.85rem;
+  font-family: var(--tc-font-body);
   text-decoration: none;
   transition: all 0.2s;
+  background: var(--tc-card-bg);
 }
 .woocommerce nav.woocommerce-pagination ul li span.current,
 .woocommerce nav.woocommerce-pagination ul li a:hover {
-  background: var(--tc-gold);
-  border-color: var(--tc-gold);
-  color: var(--tc-charcoal);
+  background: var(--tc-accent);
+  border-color: var(--tc-accent);
+  color: #fff;
 }
 
 /* ============================================================
@@ -583,8 +781,17 @@ footer.wp-block-template-part,
 .woocommerce-message,
 .woocommerce-info {
   background: var(--tc-card-bg) !important;
-  border-top: 4px solid var(--tc-gold) !important;
-  color: var(--tc-stone) !important;
+  border-top: 3px solid var(--tc-accent) !important;
+  color: var(--tc-text) !important;
+  border-radius: 0 0 var(--tc-radius) var(--tc-radius) !important;
+  font-family: var(--tc-font-body);
+  box-shadow: var(--tc-shadow-card);
+}
+
+.woocommerce-error {
+  background: #fff5f3 !important;
+  border-top: 3px solid #c0392b !important;
+  color: var(--tc-text) !important;
   border-radius: 0 0 var(--tc-radius) var(--tc-radius) !important;
 }
 
@@ -592,26 +799,29 @@ footer.wp-block-template-part,
    BREADCRUMB
    ============================================================ */
 .woocommerce .woocommerce-breadcrumb {
-  color: var(--tc-stone-dark);
+  color: var(--tc-text-muted);
   font-size: 0.8rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  font-family: var(--tc-font-body);
 }
-.woocommerce .woocommerce-breadcrumb a { color: var(--tc-gold); }
+.woocommerce .woocommerce-breadcrumb a { color: var(--tc-accent); }
+.woocommerce .woocommerce-breadcrumb a:hover { color: var(--tc-accent-dark); }
 
 /* ============================================================
    PRICE RANGE / SALE BADGE
    ============================================================ */
 .woocommerce span.onsale {
-  background: var(--tc-gold) !important;
-  color: var(--tc-charcoal) !important;
+  background: var(--tc-accent) !important;
+  color: #fff !important;
   border-radius: 50%;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   min-height: 40px;
   min-width: 40px;
   line-height: 40px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-family: var(--tc-font-body);
 }
 
 /* ============================================================
@@ -619,37 +829,94 @@ footer.wp-block-template-part,
    ============================================================ */
 .woocommerce-product-search input[type="search"] {
   background: var(--tc-card-bg) !important;
-  border: 1px solid var(--tc-border) !important;
+  border: 1.5px solid var(--tc-border) !important;
   border-radius: var(--tc-radius) 0 0 var(--tc-radius) !important;
-  color: var(--tc-stone) !important;
-  padding: 0.6rem 1rem;
-  font-family: var(--tc-font-sans);
+  color: var(--tc-text) !important;
+  padding: 0.65rem 1rem;
+  font-family: var(--tc-font-body);
   min-width: 240px;
 }
 .woocommerce-product-search button[type="submit"] {
-  background: var(--tc-gold) !important;
+  background: var(--tc-accent) !important;
   border: none !important;
   border-radius: 0 var(--tc-radius) var(--tc-radius) 0 !important;
-  color: var(--tc-charcoal) !important;
-  padding: 0.6rem 1rem;
+  color: #fff !important;
+  padding: 0.65rem 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  font-family: var(--tc-font-body);
+}
+.woocommerce-product-search button[type="submit"]:hover {
+  background: var(--tc-accent-dark) !important;
+}
+
+/* ============================================================
+   SHOP PAGE HEADER / RESULT COUNT
+   ============================================================ */
+.woocommerce-products-header__title,
+.woocommerce-loop__title {
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+}
+
+.woocommerce-result-count {
+  color: var(--tc-text-muted);
+  font-size: 0.85rem;
+  font-family: var(--tc-font-body);
+}
+
+.woocommerce-ordering select {
+  border: 1.5px solid var(--tc-border);
+  border-radius: var(--tc-radius);
+  background: var(--tc-card-bg);
+  color: var(--tc-text);
+  padding: 0.45rem 0.75rem;
+  font-family: var(--tc-font-body);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   RELATED PRODUCTS
+   ============================================================ */
+.related.products > h2,
+.upsells.products > h2 {
+  font-family: var(--tc-font-heading);
+  font-size: 1.5rem;
+  color: var(--tc-text);
+  border-bottom: 1px solid var(--tc-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
+@media (max-width: 900px) {
+  .woocommerce ul.products {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
 @media (max-width: 768px) {
   .woocommerce ul.products {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  .tc-hero { padding: 3rem 1.5rem; }
+  .tc-hero { padding: 3.5rem 1.5rem 3rem; }
+  .tc-hero-search { flex-direction: column; border-radius: var(--tc-radius-lg); }
+  .tc-hero-search input { border-radius: var(--tc-radius-lg) var(--tc-radius-lg) 0 0; }
+  .tc-hero-search button { border-radius: 0 0 var(--tc-radius-lg) var(--tc-radius-lg); }
   #tc-demo-modal { padding: 2rem 1.5rem; }
+  .tc-category-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 480px) {
   .woocommerce ul.products {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+  }
+  .tc-category-grid { grid-template-columns: repeat(2, 1fr); }
+  .woocommerce ul.products li.product a img {
+    aspect-ratio: 3 / 2;
   }
 }
