@@ -3,7 +3,7 @@
  * Plugin Name:       Scolta AI Search
  * Plugin URI:        https://www.tag1.com/scolta
  * Description:       Zero-infrastructure AI search with Pagefind, query expansion, summarization.
- * Version:           0.3.8
+ * Version:           1.0.0-dev
  * Requires at least: 6.0
  *   — No WP 6.1+ APIs used. Verified: no wp_register_block_type_from_metadata()
  *     call-style, no Interactivity API, no wp_admin_notice(), no Plugin
@@ -20,7 +20,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCOLTA_VERSION', '0.3.8' );
+define( 'SCOLTA_VERSION', '1.0.0-dev' );
 define( 'SCOLTA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_FILE', __FILE__ );
@@ -34,6 +34,8 @@ if ( file_exists( $autoloader ) ) {
 // Plugin includes.
 require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-tracker.php';
 require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-content-source.php';
+require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-amazee-config-storage.php';
+require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-amazee-budget-handler.php';
 require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-ai-service.php';
 require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-cache-driver.php';
 require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-prompt-enricher.php';
@@ -47,6 +49,8 @@ require_once SCOLTA_PLUGIN_DIR . 'includes/class-scolta-auto-rebuild.php';
 // Admin.
 if ( is_admin() ) {
 	require_once SCOLTA_PLUGIN_DIR . 'admin/class-scolta-admin.php';
+	require_once SCOLTA_PLUGIN_DIR . 'admin/class-scolta-amazee-admin-page.php';
+	Scolta_Amazee_Admin_Page::init();
 }
 
 // WP-CLI commands.
@@ -161,15 +165,72 @@ function scolta_activate(): void {
 		);
 	}
 
-	// Queue initial index build if Action Scheduler is available.
+	// Queue initial index build and Amazee.ai provisioning if Action Scheduler
+	// is available. Both are deferred so activation does not block on HTTP calls.
 	if ( function_exists( 'as_schedule_single_action' ) ) {
+		as_schedule_single_action( time() + 5, 'scolta_amazee_provision', array(), 'scolta' );
 		as_schedule_single_action( time() + 10, 'scolta_rebuild_start', array(), 'scolta' );
+	} else {
+		// Without Action Scheduler, fall back to synchronous provisioning.
+		scolta_auto_provision_amazee();
 	}
 
 	// Set transient for admin notice.
 	set_transient( 'scolta_activated', true, 60 );
 }
 register_activation_hook( __FILE__, 'scolta_activate' );
+
+// Register the Action Scheduler callback for background provisioning.
+add_action( 'scolta_amazee_provision', 'scolta_auto_provision_amazee' );
+
+/**
+ * Attempt Amazee.ai trial provisioning at plugin activation time.
+ *
+ * No-op when the user has an explicit API key configured, or when
+ * credentials are already stored. Failures are silenced — activation
+ * succeeds regardless.
+ */
+function scolta_auto_provision_amazee(): void {
+	$storage = new Scolta_Amazee_Config_Storage();
+
+	\Tag1\Scolta\AiProvider\Amazee\AutoProvisioner::ensureAiAvailable(
+		$storage,
+		hasExplicitApiKey: scolta_has_explicit_api_key(),
+		onModelsResolved: function ( string $ai_model, string $ai_expansion_model ): void {
+			$settings = get_option( 'scolta_settings', array() );
+			if ( $ai_model !== '' ) {
+				$settings['ai_model'] = $ai_model;
+			}
+			if ( $ai_expansion_model !== '' ) {
+				$settings['ai_expansion_model'] = $ai_expansion_model;
+			}
+			update_option( 'scolta_settings', $settings );
+		},
+	);
+}
+
+/**
+ * Check whether the site has an explicit Scolta API key configured.
+ *
+ * Returns true when SCOLTA_API_KEY env var, $_ENV, $_SERVER, or a
+ * wp-config.php constant is non-empty, meaning the user has their own
+ * provider and auto-provisioning should be skipped.
+ *
+ * @return bool True if an explicit API key is configured.
+ */
+function scolta_has_explicit_api_key(): bool {
+	$env = getenv( 'SCOLTA_API_KEY' );
+	if ( $env !== false && $env !== '' ) {
+		return true;
+	}
+	if ( ! empty( $_ENV['SCOLTA_API_KEY'] ) || ! empty( $_SERVER['SCOLTA_API_KEY'] ) ) {
+		return true;
+	}
+	if ( defined( 'SCOLTA_API_KEY' ) && SCOLTA_API_KEY !== '' ) {
+		return true;
+	}
+	return false;
+}
 
 /**
  * Show one-time admin notice after plugin activation.
@@ -334,6 +395,34 @@ add_action(
 	10,
 	2
 );
+
+/**
+ * Rebuild the resolved-prompt cache when the plugin version changes.
+ *
+ * The update_option_scolta_settings hook only fires on explicit settings saves,
+ * so cached prompts become stale after a plugin update that changes DefaultPrompts.
+ * This function detects the version mismatch and rebuilds the cache automatically.
+ */
+function scolta_refresh_prompt_cache_if_stale(): void {
+	if ( get_option( 'scolta_prompt_cache_version', '' ) === SCOLTA_VERSION ) {
+		return;
+	}
+	$settings  = get_option( 'scolta_settings', array() );
+	$site_name = $settings['site_name'] ?? get_bloginfo( 'name' );
+	$site_desc = $settings['site_description'] ?? 'website';
+
+	$all = array();
+	foreach ( array( 'expand_query', 'summarize', 'follow_up' ) as $name ) {
+		$all[ $name ] = \Tag1\Scolta\Prompt\DefaultPrompts::resolve(
+			$name,
+			$site_name,
+			$site_desc,
+		);
+	}
+	update_option( 'scolta_resolved_prompts', $all, false );
+	update_option( 'scolta_prompt_cache_version', SCOLTA_VERSION, false );
+}
+add_action( 'plugins_loaded', 'scolta_refresh_prompt_cache_if_stale' );
 
 /**
  * REST API registration.
