@@ -6,8 +6,15 @@
 add_action( 'wp_enqueue_scripts', 'tc_enqueue_styles' );
 function tc_enqueue_styles() {
 	wp_enqueue_style(
+		'tc-google-fonts',
+		'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap',
+		array(),
+		null
+	);
+	wp_enqueue_style(
 		'parent-style',
-		get_template_directory_uri() . '/style.css'
+		get_template_directory_uri() . '/style.css',
+		array( 'tc-google-fonts' )
 	);
 	wp_enqueue_style(
 		'terra-collecta-style',
@@ -171,3 +178,48 @@ function tc_formation_tab_content() {
 		echo '<p>' . wp_kses_post( $collector ) . '</p>';
 	}
 }
+
+/* ---------------------------------------------------------------
+   Category badge on shop/archive product cards
+   --------------------------------------------------------------- */
+add_action( 'woocommerce_before_shop_loop_item_title', 'tc_show_category_badge', 15 );
+function tc_show_category_badge() {
+	global $product;
+	$terms = get_the_terms( $product->get_id(), 'product_cat' );
+	if ( $terms && ! is_wp_error( $terms ) ) {
+		// Skip the uncategorized default
+		$cats = array_filter( $terms, fn( $t ) => 'uncategorized' !== $t->slug );
+		if ( $cats ) {
+			$cat = reset( $cats );
+			printf( '<span class="tc-category-badge">%s</span>', esc_html( $cat->name ) );
+		}
+	}
+}
+
+/* ---------------------------------------------------------------
+   Key scientific detail on shop/archive product cards
+   --------------------------------------------------------------- */
+add_action( 'woocommerce_after_shop_loop_item_title', 'tc_show_key_detail', 15 );
+function tc_show_key_detail() {
+	global $product;
+	$mohs = get_post_meta( $product->get_id(), '_tc_mohs', true );
+	if ( $mohs ) {
+		printf( '<span class="tc-key-detail">Mohs hardness: %s</span>', esc_html( $mohs ) );
+		return;
+	}
+	$crystal = get_post_meta( $product->get_id(), '_tc_crystal', true );
+	if ( $crystal ) {
+		printf( '<span class="tc-key-detail">%s</span>', esc_html( $crystal ) );
+	}
+}
+
+/* ---------------------------------------------------------------
+   Randomised default sort — shop looks different each visit
+   --------------------------------------------------------------- */
+add_filter( 'woocommerce_default_catalog_orderby', function() {
+	return 'rand';
+} );
+
+add_filter( 'woocommerce_catalog_orderby', function( $options ) {
+	return array_merge( array( 'rand' => 'Surprise Me' ), $options );
+} );
