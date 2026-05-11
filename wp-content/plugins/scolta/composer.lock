@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54ecdc7e75e3a03c4d75d064d19fa3e0",
+    "content-hash": "59ad71673394b1f457601500e71ac43f",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1064,12 +1064,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tag1consulting/scolta-php.git",
-                "reference": "e09558dfb14fa517ce390bef633854e13cdec30f"
+                "reference": "37999bf426e872ea4c686cd5efa9cbcab95f0c63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/e09558dfb14fa517ce390bef633854e13cdec30f",
-                "reference": "e09558dfb14fa517ce390bef633854e13cdec30f",
+                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/37999bf426e872ea4c686cd5efa9cbcab95f0c63",
+                "reference": "37999bf426e872ea4c686cd5efa9cbcab95f0c63",
                 "shasum": ""
             },
             "require": {
@@ -1130,7 +1130,7 @@
                 "source": "https://github.com/tag1consulting/scolta-php/tree/main",
                 "issues": "https://github.com/tag1consulting/scolta-php/issues"
             },
-            "time": "2026-05-09T16:28:15+00:00"
+            "time": "2026-05-11T09:28:55+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -3619,9 +3619,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "tag1/scolta-php": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
