@@ -20,6 +20,7 @@ First stable release — all features from 0.3.x promoted to 1.0 API surface.
 - **Amazee.ai appears as a named option in the AI Provider dropdown.** The dropdown auto-detects the active provider: when Amazee credentials are stored, the dropdown shows "Amazee.ai (managed gateway)" and a link to the Amazee.ai settings page. `amazee` is now accepted in settings sanitization.
 - **Budget exceeded notice now links to Amazee.ai settings** with an actionable upgrade prompt instead of the generic "budget exceeded" message.
 
+
 ### Added
 - **Shortcode now passes `currentLanguage` to the JS config.** `get_locale()` is used to detect the WordPress site locale (e.g. `en_US` → `en`), and the 2-letter language code is added to `window.scolta.currentLanguage`. `scolta.js` reads this value to auto-scope search results to the active language on first load. The auto-filter only activates when `ai_languages` has more than one entry, so single-language sites are unaffected.
 
