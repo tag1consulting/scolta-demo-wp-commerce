@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b58bf98943cb70366be7f7e03c9f994a",
+    "content-hash": "1be16127e7bb0b7568a714fa6e8026d9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1060,16 +1060,16 @@
         },
         {
             "name": "tag1/scolta-php",
-            "version": "1.0.0-rc1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tag1consulting/scolta-php.git",
-                "reference": "708c6880923324d26e08044f3ac3067cb37812e7"
+                "reference": "d2a1a73eb5662440574985005bb3eabe27667e71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/708c6880923324d26e08044f3ac3067cb37812e7",
-                "reference": "708c6880923324d26e08044f3ac3067cb37812e7",
+                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/d2a1a73eb5662440574985005bb3eabe27667e71",
+                "reference": "d2a1a73eb5662440574985005bb3eabe27667e71",
                 "shasum": ""
             },
             "require": {
@@ -1085,6 +1085,7 @@
             "suggest": {
                 "ext-intl": "Improves Unicode diacritic normalization quality. Falls back to strtr() mapping without it."
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1114,6 +1115,9 @@
                 "update-browser-wasm": [
                     "cp ../scolta-core/pkg/scolta_core_bg.wasm assets/wasm/ && cp ../scolta-core/pkg/scolta_core.js assets/wasm/"
                 ],
+                "update-js-checksum": [
+                    "sha256sum assets/js/scolta.js | awk '{print $1}' > assets/js/scolta.js.sha256"
+                ],
                 "validate-release": [
                     "php scripts/validate-release.php"
                 ],
@@ -1126,10 +1130,10 @@
             ],
             "description": "AI-powered search with Pagefind — PHP language binding",
             "support": {
-                "source": "https://github.com/tag1consulting/scolta-php/tree/v1.0.0-rc1",
+                "source": "https://github.com/tag1consulting/scolta-php/tree/main",
                 "issues": "https://github.com/tag1consulting/scolta-php/issues"
             },
-            "time": "2026-05-11T20:48:54+00:00"
+            "time": "2026-05-12T08:21:21+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -3617,9 +3621,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "RC",
+    "minimum-stability": "dev",
     "stability-flags": {
-        "tag1/scolta-php": 5
+        "tag1/scolta-php": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

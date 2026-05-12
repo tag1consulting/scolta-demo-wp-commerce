@@ -6,7 +6,8 @@ This project uses [Semantic Versioning](https://semver.org/). Major versions are
 
 ## [Unreleased]
 
-_No changes yet._
+### Changed
+- **Updated `tag1/scolta-php` dependency to `dev-main`.** Tracks the development branch instead of `1.0.0-rc1` for demo environments.
 
 ## [1.0.0-rc1] - 2026-05-11
 
