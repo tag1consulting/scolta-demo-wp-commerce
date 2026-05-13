@@ -155,9 +155,10 @@ class Scolta_Content_Source implements ContentSourceInterface {
 	private function post_to_content_item( \WP_Post $post ): ?ContentItem {
 		setup_postdata( $post );
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Intentionally applying WordPress core's the_content filter.
 		$content = apply_filters( 'the_content', $post->post_content );
 
-		if ( empty( trim( strip_tags( $content ) ) ) ) {
+		if ( empty( trim( wp_strip_all_tags( $content ) ) ) ) {
 			wp_reset_postdata();
 			return null;
 		}

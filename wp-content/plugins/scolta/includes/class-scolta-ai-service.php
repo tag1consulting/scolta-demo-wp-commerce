@@ -35,11 +35,20 @@ class Scolta_Ai_Service extends AiServiceAdapter {
 	/**
 	 * Create from WordPress options.
 	 *
-	 * Checks for Amazee.ai credentials first; falls back to the API key
-	 * from environment variables or wp-config.php constants.
+	 * Priority: env var / wp-config.php constant / legacy database key >
+	 * Amazee.ai stored credentials. Amazee is only used when no explicit
+	 * key is configured so users who set their own key are never silently
+	 * rerouted to the Amazee LiteLLM proxy.
 	 */
 	public static function from_options(): self {
-		$settings = get_option( 'scolta_settings', array() );
+		$settings    = get_option( 'scolta_settings', array() );
+		$explicit_key = self::get_api_key();
+
+		if ( $explicit_key !== '' ) {
+			// User has their own key — use it, never touch Amazee credentials.
+			$settings['ai_api_key'] = $explicit_key;
+			return new self( ScoltaConfig::fromArray( $settings ) );
+		}
 
 		$storage = new Scolta_Amazee_Config_Storage();
 		$creds   = $storage->load();
@@ -47,8 +56,6 @@ class Scolta_Ai_Service extends AiServiceAdapter {
 			$settings['ai_provider'] = 'openai';
 			$settings['ai_api_key']  = $creds['litellm_token'];
 			$settings['ai_base_url'] = $creds['litellm_api_url'];
-		} else {
-			$settings['ai_api_key'] = self::get_api_key();
 		}
 
 		$config  = ScoltaConfig::fromArray( $settings );
@@ -140,12 +147,15 @@ class Scolta_Ai_Service extends AiServiceAdapter {
 		}
 
 		// Also check $_ENV and $_SERVER (some hosts populate these differently).
+		// Server environment variables: not user input, no sanitization needed.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		if ( ! empty( $_ENV['SCOLTA_API_KEY'] ) ) {
 			return $_ENV['SCOLTA_API_KEY'];
 		}
 		if ( ! empty( $_SERVER['SCOLTA_API_KEY'] ) ) {
 			return $_SERVER['SCOLTA_API_KEY'];
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 		// wp-config.php constant (better than database, not as good as env var).
 		if ( defined( 'SCOLTA_API_KEY' ) && SCOLTA_API_KEY !== '' ) {
@@ -224,6 +234,7 @@ class Scolta_Ai_Service extends AiServiceAdapter {
 			// SDK not configured or provider missing — fall through to built-in.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$msg = '[scolta] WP AI SDK failed, falling back to built-in: ';
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging guarded by WP_DEBUG.
 				error_log( $msg . $e->getMessage() );
 			}
 			return null;
@@ -244,6 +255,7 @@ class Scolta_Ai_Service extends AiServiceAdapter {
 		} catch ( \Exception $e ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$msg = '[scolta] WP AI SDK conversation failed, falling back: ';
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging guarded by WP_DEBUG.
 				error_log( $msg . $e->getMessage() );
 			}
 			return null;

@@ -3,7 +3,7 @@
  * Plugin Name:       Scolta AI Search
  * Plugin URI:        https://www.tag1.com/scolta
  * Description:       Zero-infrastructure AI search with Pagefind, query expansion, summarization.
- * Version:           1.0.0-dev
+ * Version:           1.0.0-rc2
  * Requires at least: 6.0
  *   — No WP 6.1+ APIs used. Verified: no wp_register_block_type_from_metadata()
  *     call-style, no Interactivity API, no wp_admin_notice(), no Plugin
@@ -15,20 +15,19 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       scolta
- * Domain Path:       /languages
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCOLTA_VERSION', '1.0.0-dev' );
+define( 'SCOLTA_VERSION', '1.0.0-rc2' );
 define( 'SCOLTA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_FILE', __FILE__ );
 
 // Composer autoloader (scolta-php).
-$autoloader = SCOLTA_PLUGIN_DIR . 'vendor/autoload.php';
-if ( file_exists( $autoloader ) ) {
-	require_once $autoloader;
+$scolta_autoloader = SCOLTA_PLUGIN_DIR . 'vendor/autoload.php';
+if ( file_exists( $scolta_autoloader ) ) {
+	require_once $scolta_autoloader;
 }
 
 // Plugin includes.
@@ -131,10 +130,8 @@ function scolta_activate(): void {
 
 	// New installs: set defaults with autoload disabled.
 	if ( false === get_option( 'scolta_settings' ) ) {
-		// Use PHP indexer by default when no Pagefind binary is available.
-		if ( ! scolta_pagefind_binary_available() ) {
-			$defaults['indexer'] = 'php';
-		}
+		// 'auto' default is correct — auto always means PHP on every code path.
+		// No binary probe needed here.
 		add_option( 'scolta_settings', $defaults, '', false );
 	} else {
 		// Existing installs: merge in new defaults for added fields,
@@ -158,6 +155,7 @@ function scolta_activate(): void {
 		update_option( 'scolta_settings', $merged );
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time activation; setting autoload=no on scolta_settings.
 		$wpdb->update(
 			$wpdb->options,
 			array( 'autoload' => 'no' ),
@@ -196,25 +194,16 @@ function scolta_auto_provision_amazee(): void {
 	\Tag1\Scolta\AiProvider\Amazee\AutoProvisioner::ensureAiAvailable(
 		$storage,
 		hasExplicitApiKey: scolta_has_explicit_api_key(),
-		onModelsResolved: function ( string $ai_model, string $ai_expansion_model ): void {
-			$settings = get_option( 'scolta_settings', array() );
-			if ( $ai_model !== '' ) {
-				$settings['ai_model'] = $ai_model;
-			}
-			if ( $ai_expansion_model !== '' ) {
-				$settings['ai_expansion_model'] = $ai_expansion_model;
-			}
-			update_option( 'scolta_settings', $settings );
-		},
 	);
 }
 
 /**
  * Check whether the site has an explicit Scolta API key configured.
  *
- * Returns true when SCOLTA_API_KEY env var, $_ENV, $_SERVER, or a
- * wp-config.php constant is non-empty, meaning the user has their own
- * provider and auto-provisioning should be skipped.
+ * Returns true when SCOLTA_API_KEY env var, $_ENV, $_SERVER, a
+ * wp-config.php constant, or the database-stored legacy option is
+ * non-empty, meaning the user has their own provider and
+ * auto-provisioning should be skipped.
  *
  * @return bool True if an explicit API key is configured.
  */
@@ -227,6 +216,11 @@ function scolta_has_explicit_api_key(): bool {
 		return true;
 	}
 	if ( defined( 'SCOLTA_API_KEY' ) && SCOLTA_API_KEY !== '' ) {
+		return true;
+	}
+	// Database-stored key (admin UI / legacy migration path).
+	$settings = get_option( 'scolta_settings', array() );
+	if ( ! empty( $settings['ai_api_key'] ) ) {
 		return true;
 	}
 	return false;
@@ -268,6 +262,7 @@ add_action(
 function scolta_deactivate(): void {
 	// Clean up expand transients.
 	global $wpdb;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transient cleanup during deactivation; bulk delete cannot use delete_transient().
 	$wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
