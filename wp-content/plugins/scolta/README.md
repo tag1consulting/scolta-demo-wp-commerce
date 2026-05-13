@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/tag1consulting/scolta-wp/actions/workflows/ci.yml/badge.svg)](https://github.com/tag1consulting/scolta-wp/actions/workflows/ci.yml)
 
+Built and maintained by [Tag1 Consulting](https://www.tag1.com/) — technology leadership since 2007.
+
 WordPress 6.x plugin — WP-CLI commands, Settings API page, `[scolta_search]` shortcode, and AI-powered search built on Pagefind.
 
 ## Status
@@ -575,6 +577,12 @@ cli/
 vendor/
   tag1/scolta-php/                      Shared PHP library + assets
 ```
+
+## About Tag1 Consulting
+
+Scolta is designed, built, and maintained by [Tag1 Consulting](https://www.tag1.com/). Tag1 has been delivering technology leadership since 2007 and is one of the leading open-source consulting firms in the world.
+
+Tag1 offers AI strategy, architecture, and implementation consulting — from evaluating whether AI search is right for your organization, to production deployment and ongoing tuning. If you need help integrating Scolta, customizing scoring for your content model, or connecting it to your AI provider of choice, [get in touch](https://www.tag1.com/).
 
 ## Credits
 
