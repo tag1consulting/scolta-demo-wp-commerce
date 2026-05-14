@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a41f67b37ece12be5e727d5772483e6",
+    "content-hash": "1be16127e7bb0b7568a714fa6e8026d9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1060,16 +1060,16 @@
         },
         {
             "name": "tag1/scolta-php",
-            "version": "1.0.0-rc3",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tag1consulting/scolta-php.git",
-                "reference": "cb8b78b0a024e1789d7374efdd8a9094f72bbf9e"
+                "reference": "71fc37b143f65c1570b1c48b0b600f59738e0a47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/cb8b78b0a024e1789d7374efdd8a9094f72bbf9e",
-                "reference": "cb8b78b0a024e1789d7374efdd8a9094f72bbf9e",
+                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/71fc37b143f65c1570b1c48b0b600f59738e0a47",
+                "reference": "71fc37b143f65c1570b1c48b0b600f59738e0a47",
                 "shasum": ""
             },
             "require": {
@@ -1085,6 +1085,7 @@
             "suggest": {
                 "ext-intl": "Improves Unicode diacritic normalization quality. Falls back to strtr() mapping without it."
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -1129,10 +1130,10 @@
             ],
             "description": "AI-powered search with Pagefind — PHP language binding",
             "support": {
-                "source": "https://github.com/tag1consulting/scolta-php/tree/v1.0.0-rc3",
+                "source": "https://github.com/tag1consulting/scolta-php/tree/main",
                 "issues": "https://github.com/tag1consulting/scolta-php/issues"
             },
-            "time": "2026-05-13T15:02:51+00:00"
+            "time": "2026-05-14T14:55:12+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -3621,7 +3622,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "tag1/scolta-php": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
