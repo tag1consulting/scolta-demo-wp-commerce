@@ -16,4 +16,5 @@ hooks:
     - exec: "wp option update home 'https://terra-collecta.ddev.site' 2>/dev/null || true"
     - exec: "wp plugin activate woocommerce 2>/dev/null || echo 'WARNING: WooCommerce activation failed — check wp-content/plugins/woocommerce/ exists'"
     - exec: "wp option patch insert scolta_settings preset ecommerce 2>/dev/null || true"
+    - exec: "wp option patch insert scolta_settings sortable_fields --format=json '[\"price\"]' 2>/dev/null || true"
     - exec: "wp eval-file /var/www/html/import/setup-about-page.php 2>/dev/null || true"

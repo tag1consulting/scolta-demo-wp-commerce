@@ -111,14 +111,5 @@ function tc_enrich_product_content_item( $item, $post ) {
 		. '<p>' . implode( '</p><p>', array_map( 'esc_html', $lines ) ) . '</p>'
 		. '</div>';
 
-	return new \Tag1\Scolta\Export\ContentItem(
-		id: $item->id,
-		title: $item->title,
-		bodyHtml: $item->bodyHtml . $structured_html,
-		url: $item->url,
-		date: $item->date,
-		siteName: $item->siteName,
-		language: $item->language,
-		filters: $item->filters,
-	);
+	return $item->cloneWith(['bodyHtml' => $item->bodyHtml . $structured_html]);
 }
