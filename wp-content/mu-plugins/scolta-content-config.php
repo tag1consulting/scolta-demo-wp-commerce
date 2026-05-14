@@ -120,5 +120,7 @@ function tc_enrich_product_content_item( $item, $post ) {
 		siteName: $item->siteName,
 		language: $item->language,
 		filters: $item->filters,
+		metadata: $item->metadata,
+		sortable: $item->sortable,
 	);
 }
