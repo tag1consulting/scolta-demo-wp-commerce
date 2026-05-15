@@ -1064,12 +1064,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tag1consulting/scolta-php.git",
-                "reference": "fc04ed96c783a0a2fc579702649890f44629cd13"
+                "reference": "3e5e328328712ae7b7a5f0106ec1b5d1399be85f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/fc04ed96c783a0a2fc579702649890f44629cd13",
-                "reference": "fc04ed96c783a0a2fc579702649890f44629cd13",
+                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/3e5e328328712ae7b7a5f0106ec1b5d1399be85f",
+                "reference": "3e5e328328712ae7b7a5f0106ec1b5d1399be85f",
                 "shasum": ""
             },
             "require": {
@@ -1133,7 +1133,7 @@
                 "source": "https://github.com/tag1consulting/scolta-php/tree/main",
                 "issues": "https://github.com/tag1consulting/scolta-php/issues"
             },
-            "time": "2026-05-14T17:53:51+00:00"
+            "time": "2026-05-15T06:08:11+00:00"
         },
         {
             "name": "voku/portable-ascii",
