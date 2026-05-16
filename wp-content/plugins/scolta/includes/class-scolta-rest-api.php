@@ -256,7 +256,6 @@ class Scolta_Rest_Api {
 			new \Scolta_Prompt_Enricher(),
 			$config->aiLanguages,
 			aiSummaryMaxTokens: $config->aiSummaryMaxTokens,
-			sortableFields: $config->sortableFields,
 		);
 	}
 
@@ -365,7 +364,7 @@ class Scolta_Rest_Api {
 
 		$checker = new \Tag1\Scolta\Health\HealthChecker(
 			config: $ai->get_config(),
-			indexOutputDir: $settings['output_dir'] ?? ABSPATH . 'scolta-pagefind',
+			indexOutputDir: $settings['output_dir'] ?? scolta_default_output_dir(),
 			pagefindBinaryPath: $settings['pagefind_binary'] ?? null,
 			projectDir: ABSPATH,
 		);

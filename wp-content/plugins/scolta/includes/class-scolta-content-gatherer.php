@@ -323,4 +323,3 @@ class Scolta_Content_Gatherer {
 		);
 	}
 }
-

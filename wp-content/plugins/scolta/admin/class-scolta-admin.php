@@ -91,6 +91,13 @@ class Scolta_Admin {
 		add_settings_field( 'site_name', __( 'Site Name', 'scolta' ), array( self::class, 'render_site_name_field' ), 'scolta', 'scolta_content_section' );
 		add_settings_field( 'site_description', __( 'Site Description', 'scolta' ), array( self::class, 'render_site_description_field' ), 'scolta', 'scolta_content_section' );
 
+		// --- Section: Search Customization ---
+		add_settings_section( 'scolta_search_customization_section', __( 'Search Customization', 'scolta' ), array( self::class, 'render_search_customization_section' ), 'scolta' );
+		add_settings_field( 'sortable_fields', __( 'Sortable Fields', 'scolta' ), array( self::class, 'render_sortable_fields_field' ), 'scolta', 'scolta_search_customization_section' );
+		add_settings_field( 'sortable_field_descriptions', __( 'Sortable Field Descriptions', 'scolta' ), array( self::class, 'render_sortable_field_descriptions_field' ), 'scolta', 'scolta_search_customization_section' );
+		add_settings_field( 'filter_fields', __( 'Filter Fields', 'scolta' ), array( self::class, 'render_filter_fields_field' ), 'scolta', 'scolta_search_customization_section' );
+		add_settings_field( 'filter_field_descriptions', __( 'Filter Field Descriptions', 'scolta' ), array( self::class, 'render_filter_field_descriptions_field' ), 'scolta', 'scolta_search_customization_section' );
+
 		// --- Section: Pagefind ---
 		add_settings_section( 'scolta_pagefind_section', __( 'Pagefind', 'scolta' ), array( self::class, 'render_pagefind_section' ), 'scolta' );
 		add_settings_field( 'indexer', __( 'Indexer', 'scolta' ), array( self::class, 'render_indexer_field' ), 'scolta', 'scolta_pagefind_section' );
@@ -162,6 +169,10 @@ class Scolta_Admin {
 
 	public static function render_content_section(): void {
 		echo '<p class="description">' . esc_html__( 'Choose which content types to index and how your site is identified in search results.', 'scolta' ) . '</p>';
+	}
+
+	public static function render_search_customization_section(): void {
+		echo '<p class="description">' . esc_html__( 'Optional. Configure sortable fields and filter dimensions so the AI can detect sort and filter intent in search queries.', 'scolta' ) . '</p>';
 	}
 
 	public static function render_pagefind_section(): void {
@@ -486,6 +497,54 @@ class Scolta_Admin {
 		<?php
 	}
 
+	public static function render_sortable_fields_field(): void {
+		$fields = self::get_setting( 'sortable_fields', array() );
+		$value  = implode( ', ', is_array( $fields ) ? $fields : array() );
+		?>
+		<input type="text" name="scolta_settings[sortable_fields]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" />
+		<p class="description"><?php esc_html_e( 'Comma-separated field names that Pagefind emits as data-pagefind-sort attributes. e.g., date, price, word_count. Leave empty to disable sort-intent detection.', 'scolta' ); ?></p>
+		<?php
+	}
+
+	public static function render_sortable_field_descriptions_field(): void {
+		$descs = self::get_setting( 'sortable_field_descriptions', array() );
+		$lines = array();
+		if ( is_array( $descs ) ) {
+			foreach ( $descs as $field => $desc ) {
+				$lines[] = $field . '|' . $desc;
+			}
+		}
+		$value = implode( "\n", $lines );
+		?>
+		<textarea name="scolta_settings[sortable_field_descriptions]" rows="4" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
+		<p class="description"><?php esc_html_e( 'One entry per line: field_name|Human-readable description. e.g., word_count|Article length in words. Descriptions help the AI map natural language to the correct field.', 'scolta' ); ?></p>
+		<?php
+	}
+
+	public static function render_filter_fields_field(): void {
+		$fields = self::get_setting( 'filter_fields', array() );
+		$value  = implode( ', ', is_array( $fields ) ? $fields : array() );
+		?>
+		<input type="text" name="scolta_settings[filter_fields]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" />
+		<p class="description"><?php esc_html_e( 'Comma-separated filter dimension names matching data-pagefind-filter attributes. e.g., topic, era, region. Leave empty to disable filter-intent detection.', 'scolta' ); ?></p>
+		<?php
+	}
+
+	public static function render_filter_field_descriptions_field(): void {
+		$descs = self::get_setting( 'filter_field_descriptions', array() );
+		$lines = array();
+		if ( is_array( $descs ) ) {
+			foreach ( $descs as $field => $desc ) {
+				$lines[] = $field . '|' . $desc;
+			}
+		}
+		$value = implode( "\n", $lines );
+		?>
+		<textarea name="scolta_settings[filter_field_descriptions]" rows="4" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
+		<p class="description"><?php esc_html_e( 'One entry per line: filter_name|Human-readable description with valid values. e.g., topic|Subject area. Values: Science, History, Biography. Helps the AI map user language to filter values.', 'scolta' ); ?></p>
+		<?php
+	}
+
 	public static function render_indexer_field(): void {
 		$value = self::get_setting( 'indexer', 'auto' );
 		?>
@@ -583,10 +642,10 @@ class Scolta_Admin {
 	}
 
 	public static function render_output_dir_field(): void {
-		$value = self::get_setting( 'output_dir', wp_upload_dir()['basedir'] . '/scolta/pagefind' );
+		$value = self::get_setting( 'output_dir', scolta_default_output_dir() );
 		?>
 		<input type="text" name="scolta_settings[output_dir]" value="<?php echo esc_attr( $value ); ?>" class="large-text" />
-		<p class="description"><?php esc_html_e( 'Directory for the Pagefind search index. Must be web-accessible. Defaults to wp-content/uploads/scolta/pagefind.', 'scolta' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Parent directory for the Pagefind search index. Must be web-accessible. The PHP indexer writes the index to a pagefind/ subdirectory here. Defaults to wp-content/uploads/scolta.', 'scolta' ); ?></p>
 		<?php
 	}
 
@@ -979,6 +1038,38 @@ class Scolta_Admin {
 		$clean['site_name']        = sanitize_text_field( $input['site_name'] ?? get_bloginfo( 'name' ) );
 		$clean['site_description'] = sanitize_text_field( $input['site_description'] ?? 'website' );
 
+		// Search customization: sortable fields.
+		$sortable_raw            = sanitize_text_field( $input['sortable_fields'] ?? '' );
+		$clean['sortable_fields'] = array_values(
+			array_filter(
+				array_map(
+					fn( $f ) => sanitize_key( trim( $f ) ),
+					explode( ',', $sortable_raw )
+				)
+			)
+		);
+
+		// Sortable field descriptions (field|description per line).
+		$clean['sortable_field_descriptions'] = self::parse_key_value_lines(
+			$input['sortable_field_descriptions'] ?? ''
+		);
+
+		// Filter fields.
+		$filter_raw            = sanitize_text_field( $input['filter_fields'] ?? '' );
+		$clean['filter_fields'] = array_values(
+			array_filter(
+				array_map(
+					fn( $f ) => sanitize_key( trim( $f ) ),
+					explode( ',', $filter_raw )
+				)
+			)
+		);
+
+		// Filter field descriptions (filter|description per line).
+		$clean['filter_field_descriptions'] = self::parse_key_value_lines(
+			$input['filter_field_descriptions'] ?? ''
+		);
+
 		// Indexer.
 		$clean['indexer'] = in_array( $input['indexer'] ?? '', array( 'auto', 'php', 'binary' ), true )
 			? $input['indexer']
@@ -999,7 +1090,7 @@ class Scolta_Admin {
 		// Pagefind paths.
 		$clean['pagefind_binary']    = sanitize_text_field( $input['pagefind_binary'] ?? 'pagefind' );
 		$clean['build_dir']          = wp_normalize_path( $input['build_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/build' );
-		$clean['output_dir']         = wp_normalize_path( $input['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind' );
+		$clean['output_dir']         = wp_normalize_path( $input['output_dir'] ?? scolta_default_output_dir() );
 		$clean['auto_rebuild']       = ! empty( $input['auto_rebuild'] );
 		$clean['auto_rebuild_delay'] = max( 60, min( 3600, (int) ( $input['auto_rebuild_delay'] ?? 300 ) ) );
 
@@ -1103,6 +1194,32 @@ class Scolta_Admin {
 		return $sanitized;
 	}
 
+	/**
+	 * Parse a textarea of "key|value" lines into an associative array.
+	 *
+	 * Lines without a pipe separator are silently skipped.
+	 * Keys are sanitized with sanitize_key(); values with sanitize_text_field().
+	 *
+	 * @param string $raw Raw textarea value.
+	 * @return array<string, string> Parsed key → value map.
+	 */
+	private static function parse_key_value_lines( string $raw ): array {
+		$result = array();
+		foreach ( explode( "\n", $raw ) as $line ) {
+			$line = trim( $line );
+			if ( '' === $line || ! str_contains( $line, '|' ) ) {
+				continue;
+			}
+			[ $key, $val ] = explode( '|', $line, 2 );
+			$key = sanitize_key( trim( $key ) );
+			$val = sanitize_text_field( trim( $val ) );
+			if ( '' !== $key ) {
+				$result[ $key ] = $val;
+			}
+		}
+		return $result;
+	}
+
 	// -----------------------------------------------------------------
 	// AJAX: remove legacy DB key
 	// -----------------------------------------------------------------
@@ -1197,7 +1314,7 @@ class Scolta_Admin {
 	private static function render_status_summary(): void {
 		$settings        = get_option( 'scolta_settings', array() );
 		$build_dir       = $settings['build_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/build';
-		$output_dir      = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+		$output_dir      = $settings['output_dir'] ?? scolta_default_output_dir();
 		$indexer_setting = $settings['indexer'] ?? 'auto';
 
 		$binary_resolver  = new \Tag1\Scolta\Binary\PagefindBinary(
@@ -1570,8 +1687,8 @@ class Scolta_Admin {
 	 */
 	public static function get_health_status(): array {
 		$settings   = get_option( 'scolta_settings', array() );
-		$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
-		$index_file = $output_dir . '/pagefind.js';
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+		$index_file = $output_dir . '/pagefind/pagefind.js';
 
 		if ( ! file_exists( $index_file ) ) {
 			return array(
@@ -1583,8 +1700,9 @@ class Scolta_Admin {
 			);
 		}
 
+		$index_dir      = $output_dir . '/pagefind';
 		$mtime          = filemtime( $index_file );
-		$glob_result    = glob( $output_dir . '/fragment/*' );
+		$glob_result    = glob( $index_dir . '/fragment/*' );
 		$fragment_count = count( ! empty( $glob_result ) ? $glob_result : array() );
 
 		return array(
@@ -1613,7 +1731,7 @@ class Scolta_Admin {
 		check_admin_referer( 'scolta_rebuild_now', 'scolta_rebuild_nonce' );
 
 		$settings   = get_option( 'scolta_settings', array() );
-		$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 
 		$redirect = admin_url( 'options-general.php?page=scolta' );
 
