@@ -105,16 +105,16 @@ class Scolta_CLI {
 	 * @subcommand build
 	 */
 	public function build( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$this->do_build( $args, $assoc_args );
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -157,7 +157,7 @@ class Scolta_CLI {
 		$resume        = \WP_CLI\Utils\get_flag_value( $assoc_args, 'resume', false );
 		$restart       = \WP_CLI\Utils\get_flag_value( $assoc_args, 'restart', false );
 		$strict_errors = \WP_CLI\Utils\get_flag_value( $assoc_args, 'strict-errors', false );
-		$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 		$state_dir  = $this->get_state_dir();
 
 		$budget_opt = \WP_CLI\Utils\get_flag_value( $assoc_args, 'memory-budget', null );
@@ -196,6 +196,7 @@ class Scolta_CLI {
 		$report = $orchestrator->build( $intent, $items, $logger, $reporter, force: (bool) $force );
 
 		if ( $report->success ) {
+			scolta_cleanup_nested_indexes( $output_dir );
 			$generation = (int) get_option( 'scolta_generation', 0 );
 			update_option( 'scolta_generation', $generation + 1 );
 			\WP_CLI::success(
@@ -206,9 +207,103 @@ class Scolta_CLI {
 					$report->peakMemoryMb()
 				)
 			);
+		} elseif ( $report->error === 'memory_abort' ) {
+			// Voluntary yield: RSS reached 75% of the memory limit mid-build.
+			// State is committed on disk — spawn a fresh process to resume so
+			// the child starts with a clean heap instead of the fragmented one.
+			if ( $report->chunksWritten > 0 ) {
+				\WP_CLI::log(
+					sprintf(
+						'Memory pressure after chunk %d (%d pages committed). Spawning resume in background...',
+						$report->chunksWritten,
+						$report->pagesProcessed,
+					)
+				);
+				$this->spawn_resume_background( $assoc_args );
+			} else {
+				\WP_CLI::error(
+					'Memory limit hit before any chunks were committed. Reduce --chunk-size or increase memory_limit.'
+				);
+			}
+		} elseif ( $report->error === 'index_only_complete' ) {
+			// All pages indexed but the merge could not run in this process
+			// (heap too fragmented). A fresh --resume process will handle it.
+			\WP_CLI::log(
+				sprintf(
+					'All %d pages indexed (%d chunks on disk). Spawning finalize in background...',
+					$report->pagesProcessed,
+					$report->chunksWritten,
+				)
+			);
+			$this->spawn_resume_background( $assoc_args );
 		} else {
 			\WP_CLI::error( $report->error ?? 'Unknown indexer error' );
 		}
+	}
+
+	/**
+	 * Spawn a background wp scolta build --resume process.
+	 *
+	 * Used after a memory_abort or index_only_complete result to continue the
+	 * build in a fresh PHP process. The parent exits first, releasing its
+	 * fragmented heap, so the child starts clean.
+	 *
+	 * @param array $assoc_args CLI associative arguments from the parent invocation.
+	 */
+	private function spawn_resume_background( array $assoc_args ): void {
+		$wp_bin = $this->find_wp_cli_bin();
+		if ( null === $wp_bin ) {
+			\WP_CLI::warning( 'Cannot auto-resume: wp-cli not found. Run manually: wp scolta build --resume' );
+			return;
+		}
+
+		$cmd = escapeshellarg( $wp_bin ) . ' scolta build --indexer=php --resume';
+
+		if ( ! empty( $assoc_args['memory-budget'] ) ) {
+			$cmd .= ' --memory-budget=' . escapeshellarg( (string) $assoc_args['memory-budget'] );
+		}
+		if ( ! empty( $assoc_args['chunk-size'] ) ) {
+			$cmd .= ' --chunk-size=' . escapeshellarg( (string) $assoc_args['chunk-size'] );
+		}
+		if ( ! empty( $assoc_args['bundle'] ) ) {
+			$cmd .= ' --bundle=' . escapeshellarg( (string) $assoc_args['bundle'] );
+		}
+
+		$log_file = sys_get_temp_dir() . '/scolta-resume.log';
+		// phpcs:ignore WordPress.PHP.DiscouragedFunctions.Found -- exec() required to spawn background WP-CLI subprocess for memory-constrained resume.
+		exec( $cmd . ' >> ' . escapeshellarg( $log_file ) . ' 2>&1 &' );
+		\WP_CLI::log( 'Resume log: ' . $log_file );
+	}
+
+	/**
+	 * Locate the wp-cli binary.
+	 *
+	 * Tries argv[0] first (reliable when called from within WP-CLI itself),
+	 * then PATH, then the vendor bin directory.
+	 *
+	 * @return string|null Absolute path to the wp binary, or null if not found.
+	 */
+	private function find_wp_cli_bin(): ?string {
+		// argv[0] is the path to the current WP-CLI executable.
+		if ( ! empty( $_SERVER['argv'][0] ) && is_executable( $_SERVER['argv'][0] ) ) {
+			return $_SERVER['argv'][0];
+		}
+
+		// Fall back to PATH.
+		// phpcs:ignore WordPress.PHP.DiscouragedFunctions.Found -- shell_exec() required to locate wp-cli binary via PATH.
+		$which = trim( (string) shell_exec( 'which wp 2>/dev/null' ) );
+		if ( '' !== $which && is_executable( $which ) ) {
+			return $which;
+		}
+
+		// Check vendor/bin relative to WordPress root.
+		$root       = defined( 'ABSPATH' ) ? dirname( ABSPATH ) : getcwd();
+		$vendor_bin = $root . '/vendor/bin/wp';
+		if ( is_executable( $vendor_bin ) ) {
+			return $vendor_bin;
+		}
+
+		return null;
 	}
 
 	/**
@@ -224,7 +319,7 @@ class Scolta_CLI {
 		$skip_pagefind = \WP_CLI\Utils\get_flag_value( $assoc_args, 'skip-pagefind', false );
 
 		$build_dir  = $settings['build_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/build';
-		$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 		$post_types = $settings['post_types'] ?? array( 'post', 'page' );
 
 		$source   = new \Scolta_Content_Source( $config );
@@ -355,16 +450,16 @@ class Scolta_CLI {
 	 * @subcommand diagnose
 	 */
 	public function diagnose( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$this->do_diagnose( $assoc_args );
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -610,9 +705,9 @@ class Scolta_CLI {
 	 * @subcommand export
 	 */
 	public function export( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$incremental = \WP_CLI\Utils\get_flag_value( $assoc_args, 'incremental', false );
@@ -662,7 +757,7 @@ class Scolta_CLI {
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -676,9 +771,9 @@ class Scolta_CLI {
 	 * @subcommand rebuild-index
 	 */
 	public function rebuild_index( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$settings        = get_option( 'scolta_settings', array() );
@@ -694,7 +789,7 @@ class Scolta_CLI {
 			}
 
 			$build_dir  = $settings['build_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/build';
-			$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+			$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 
 			$resolver = new PagefindBinary(
 				configuredPath: $settings['pagefind_binary'] ?? null,
@@ -711,7 +806,7 @@ class Scolta_CLI {
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -725,16 +820,16 @@ class Scolta_CLI {
 	 * @subcommand status
 	 */
 	public function status( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$this->do_status();
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -743,7 +838,7 @@ class Scolta_CLI {
 		$settings   = get_option( 'scolta_settings', array() );
 		$post_types = $settings['post_types'] ?? array( 'post', 'page' );
 		$build_dir  = $settings['build_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/build';
-		$output_dir = $settings['output_dir'] ?? wp_upload_dir()['basedir'] . '/scolta/pagefind';
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 
 		// Tracker status.
 		\WP_CLI::log( '--- Tracker ---' );
@@ -855,9 +950,9 @@ class Scolta_CLI {
 	 * @subcommand clear-cache
 	 */
 	public function clear_cache( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$generation = (int) get_option( 'scolta_generation', 0 );
@@ -877,9 +972,158 @@ class Scolta_CLI {
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
+	}
+
+	/**
+	 * Clean up stale Pagefind index artifacts and validate the current index.
+	 *
+	 * Scans for and removes double-nested pagefind/pagefind directories left by
+	 * the old output_dir default (which ended in /pagefind, causing the PHP
+	 * indexer to write to /pagefind/pagefind/ instead of /pagefind/).
+	 *
+	 * Also validates the current index: checks pagefind-entry.json exists at
+	 * the expected path, reports version/page_count, and confirms the shortcode
+	 * path detection matches the orchestrator's expected path.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp scolta cleanup
+	 *
+	 * @subcommand cleanup
+	 */
+	public function cleanup( array $args, array $assoc_args ): void {
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
+		$prev = ini_get( 'display_errors' );
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
+		ini_set( 'display_errors', '0' );
+		try {
+			$this->do_cleanup();
+		} catch ( \Throwable $e ) {
+			\WP_CLI::error( $e->getMessage() );
+		} finally {
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
+			ini_set( 'display_errors', $prev );
+		}
+	}
+
+	/**
+	 * Run the cleanup logic.
+	 */
+	private function do_cleanup(): void {
+		$settings   = get_option( 'scolta_settings', array() );
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+
+		\WP_CLI::log( "Output directory: {$output_dir}" );
+
+		// 1. Scan for any pagefind/pagefind nesting under the scolta uploads tree.
+		$scolta_base = wp_upload_dir()['basedir'] . '/scolta';
+		$removed     = 0;
+		if ( is_dir( $scolta_base ) ) {
+			$dir_iter = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $scolta_base, \FilesystemIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::SELF_FIRST
+			);
+			foreach ( $dir_iter as $item ) {
+				if ( ! $item->isDir() ) {
+					continue;
+				}
+				$path = wp_normalize_path( $item->getPathname() );
+				if ( str_ends_with( $path, '/pagefind/pagefind' ) ) {
+					\WP_CLI::log( "  Removing double-nested: {$path}" );
+					$inner = new \RecursiveIteratorIterator(
+						new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ),
+						\RecursiveIteratorIterator::CHILD_FIRST
+					);
+					foreach ( $inner as $f ) {
+						if ( $f->isDir() ) {
+							// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- CLI cleanup of stale artifact.
+							rmdir( $f->getPathname() );
+						} else {
+							wp_delete_file( $f->getPathname() );
+						}
+					}
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- CLI cleanup of stale artifact.
+					rmdir( $path );
+					++$removed;
+					$dir_iter->next(); // skip now-removed subtree
+				}
+			}
+		}
+
+		if ( $removed > 0 ) {
+			\WP_CLI::success( "Removed {$removed} double-nested pagefind director" . ( $removed === 1 ? 'y' : 'ies' ) . '.' );
+		} else {
+			\WP_CLI::log( 'No double-nested pagefind directories found.' );
+		}
+
+		// 2. Check for stale ABSPATH/scolta-pagefind directory.
+		$old_abspath_dir = rtrim( ABSPATH, '/' ) . '/scolta-pagefind';
+		if ( is_dir( $old_abspath_dir ) ) {
+			\WP_CLI::warning( "Stale ABSPATH index found at {$old_abspath_dir} — remove manually if not needed." );
+		}
+
+		// 3. Validate the current index.
+		\WP_CLI::log( '' );
+		\WP_CLI::log( '--- Index Validation ---' );
+
+		if ( file_exists( $output_dir . '/pagefind/pagefind-entry.json' ) ) {
+			$index_dir    = $output_dir . '/pagefind';
+			$layout       = 'php-indexer';
+			$index_exists = true;
+		} elseif ( file_exists( $output_dir . '/pagefind-entry.json' ) ) {
+			$index_dir    = $output_dir;
+			$layout       = 'binary-indexer';
+			$index_exists = true;
+		} else {
+			$index_dir    = null;
+			$layout       = 'none';
+			$index_exists = false;
+		}
+
+		if ( ! $index_exists ) {
+			\WP_CLI::warning( 'No index found. Run: wp scolta build' );
+			return;
+		}
+
+		\WP_CLI::log( "  Layout:   {$layout}" );
+		\WP_CLI::log( "  Path:     {$index_dir}" );
+
+		$entry_file = $index_dir . '/pagefind-entry.json';
+		try {
+			$entry      = json_decode( (string) file_get_contents( $entry_file ), true, 512, JSON_THROW_ON_ERROR );
+			$version    = $entry['version'] ?? 'unknown';
+			$page_count = count( $entry['pages'] ?? array() );
+			\WP_CLI::log( "  Version:  {$version}" );
+			\WP_CLI::log( "  Pages:    {$page_count}" );
+		} catch ( \JsonException $e ) {
+			\WP_CLI::warning( 'Could not parse pagefind-entry.json: ' . $e->getMessage() );
+		}
+
+		$glob_frags     = glob( $index_dir . '/*.pf_fragment' );
+		$glob_frags     = ! empty( $glob_frags ) ? $glob_frags : array();
+		$fragment_count = count( $glob_frags );
+		\WP_CLI::log( "  Fragments: {$fragment_count}" );
+
+		// 4. Confirm shortcode and orchestrator agree on where the index lives.
+		$expected_shortcode_path = $output_dir . '/pagefind/pagefind-entry.json';
+		$shortcode_match         = file_exists( $expected_shortcode_path )
+			&& realpath( $expected_shortcode_path ) === realpath( $entry_file );
+
+		if ( $shortcode_match ) {
+			\WP_CLI::log( '  Shortcode path: MATCH (PHP-indexer layout detected correctly)' );
+		} else {
+			$fallback_path = $output_dir . '/pagefind-entry.json';
+			if ( file_exists( $fallback_path ) && realpath( $fallback_path ) === realpath( $entry_file ) ) {
+				\WP_CLI::log( '  Shortcode path: MATCH (binary-indexer layout detected correctly)' );
+			} else {
+				\WP_CLI::warning( 'Shortcode path mismatch — check output_dir setting and rebuild.' );
+			}
+		}
+
+		\WP_CLI::success( 'Cleanup and validation complete.' );
 	}
 
 	/**
@@ -890,9 +1134,9 @@ class Scolta_CLI {
 	 * @subcommand check-setup
 	 */
 	public function check_setup( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$settings = get_option( 'scolta_settings', array() );
@@ -928,7 +1172,7 @@ class Scolta_CLI {
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -942,16 +1186,16 @@ class Scolta_CLI {
 	 * @subcommand download-pagefind
 	 */
 	public function download_pagefind( array $args, array $assoc_args ): void {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		$prev = ini_get( 'display_errors' );
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+		// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 		ini_set( 'display_errors', '0' );
 		try {
 			$this->do_download_pagefind();
 		} catch ( \Throwable $e ) {
 			\WP_CLI::error( $e->getMessage() );
 		} finally {
-			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.ini_set_ini_set -- CLI requires suppressing display_errors to keep output clean.
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- CLI requires suppressing display_errors to keep output clean.
 			ini_set( 'display_errors', $prev );
 		}
 	}
@@ -1075,7 +1319,7 @@ class Scolta_CLI {
 			1 => array( 'pipe', 'w' ),
 			2 => array( 'pipe', 'w' ),
 		);
-		// phpcs:ignore WordPress.PHP.DiscouragedFunctions.Found -- proc_open required for Pagefind subprocess execution in CLI context.
+		// phpcs:ignore Generic.PHP.ForbiddenFunctions.Found -- Pagefind binary must be invoked as a subprocess to build the search index. No WP alternative exists.
 		$process = proc_open( $cmd, $descriptors, $pipes );
 		if ( ! is_resource( $process ) ) {
 			\WP_CLI::error( 'Failed to start Pagefind process.' );

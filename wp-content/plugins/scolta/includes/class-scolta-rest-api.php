@@ -248,15 +248,21 @@ class Scolta_Rest_Api {
 		$generation = (int) get_option( 'scolta_generation', 0 );
 
 		return new AiEndpointHandler(
-			$ai,
-			$config->cacheTtl > 0 ? new \Scolta_Cache_Driver() : new NullCacheDriver(),
-			$generation,
-			$config->cacheTtl,
-			$config->maxFollowUps,
-			new \Scolta_Prompt_Enricher(),
-			$config->aiLanguages,
+			aiService: $ai,
+			cache: $config->cacheTtl > 0 ? new \Scolta_Cache_Driver() : new NullCacheDriver(),
+			generation: $generation,
+			cacheTtl: $config->cacheTtl,
+			maxFollowUps: $config->maxFollowUps,
+			promptEnricher: new \Scolta_Prompt_Enricher(),
+			aiLanguages: $config->aiLanguages,
+			aiExpandQuery: $config->aiExpandQuery,
+			aiSummarize: $config->aiSummarize,
 			aiSummaryMaxTokens: $config->aiSummaryMaxTokens,
+			expandPrimaryWeight: $config->expandPrimaryWeight,
 			sortableFields: $config->sortableFields,
+			sortableFieldDescriptions: $config->sortableFieldDescriptions,
+			filterFields: $config->filterFields,
+			filterFieldDescriptions: $config->filterFieldDescriptions,
 		);
 	}
 
@@ -365,7 +371,7 @@ class Scolta_Rest_Api {
 
 		$checker = new \Tag1\Scolta\Health\HealthChecker(
 			config: $ai->get_config(),
-			indexOutputDir: $settings['output_dir'] ?? ABSPATH . 'scolta-pagefind',
+			indexOutputDir: $settings['output_dir'] ?? scolta_default_output_dir(),
 			pagefindBinaryPath: $settings['pagefind_binary'] ?? null,
 			projectDir: ABSPATH,
 		);
