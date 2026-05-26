@@ -60,7 +60,9 @@ function tc_enrich_product_content_item( $item, $post ) {
 		return $item;
 	}
 
-	$lines = array();
+	$filters  = $item->filters;
+	$sortable = $item->sortable;
+	$lines    = array();
 
 	// Price — use raw numeric value with explicit currency label so the AI
 	// can compare prices across results without parsing HTML entities.
@@ -69,6 +71,7 @@ function tc_enrich_product_content_item( $item, $post ) {
 		$currency       = get_woocommerce_currency_symbol();
 		$currency_plain = html_entity_decode( $currency, ENT_HTML5, 'UTF-8' );
 		$lines[]        = 'Price: ' . $currency_plain . number_format( (float) $price, 2 );
+		$sortable['price'] = (float) $price;
 	}
 
 	// Regular / sale distinction gives the AI enough context to mention sales.
@@ -82,11 +85,26 @@ function tc_enrich_product_content_item( $item, $post ) {
 		$lines[] = 'Sale price: ' . $currency_plain . number_format( (float) $sale, 2 );
 	}
 
-	// WooCommerce category.
+	// WooCommerce category as filter.
 	$terms = get_the_terms( $post->ID, 'product_cat' );
 	if ( $terms && ! is_wp_error( $terms ) ) {
 		$cat_names = wp_list_pluck( $terms, 'name' );
 		$lines[]   = 'Category: ' . implode( ', ', $cat_names );
+		$filters['category'] = array_values( $cat_names );
+	}
+
+	// Crystal system as filter.
+	$crystal = get_post_meta( $post->ID, '_tc_crystal', true );
+	if ( ! empty( $crystal ) && $crystal !== '—' ) {
+		$filters['crystal_system'] = $crystal;
+		$lines[] = 'Crystal system: ' . $crystal;
+	}
+
+	// Mohs hardness as sortable.
+	$mohs = get_post_meta( $post->ID, '_tc_mohs', true );
+	if ( is_numeric( $mohs ) ) {
+		$sortable['mohs_hardness'] = (float) $mohs;
+		$lines[] = 'Mohs hardness: ' . $mohs;
 	}
 
 	// SKU.
@@ -103,13 +121,27 @@ function tc_enrich_product_content_item( $item, $post ) {
 		$lines[] = 'Availability: Out of Stock';
 	}
 
+	// Scientific metadata for AI context.
+	$formula = get_post_meta( $post->ID, '_tc_formula', true );
+	if ( $formula ) {
+		$lines[] = 'Chemical formula: ' . $formula;
+	}
+	$locality = get_post_meta( $post->ID, '_tc_locality', true );
+	if ( $locality ) {
+		$lines[] = 'Locality: ' . $locality;
+	}
+
 	if ( empty( $lines ) ) {
 		return $item;
 	}
 
 	$structured_html = '<div class="tc-product-structured-data">'
-		. '<p>' . implode( '</p><p>', array_map( 'esc_html', $lines ) ) . '</p>'
+		. '<p>' . implode( '</p> <p>', array_map( 'esc_html', $lines ) ) . '</p>'
 		. '</div>';
 
-	return $item->cloneWith(['bodyHtml' => $item->bodyHtml . $structured_html]);
+	return $item->cloneWith( array(
+		'bodyHtml' => $item->bodyHtml . $structured_html,
+		'filters'  => $filters,
+		'sortable' => $sortable,
+	) );
 }
