@@ -920,3 +920,145 @@ footer.wp-block-template-part a:hover,
     aspect-ratio: 3 / 2;
   }
 }
+
+/* ============================================================
+   THEME MODERNIZATION — Premium Polish
+   ============================================================ */
+
+/* Animated gradient hero background */
+@keyframes tc-hero-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.tc-hero {
+  background: linear-gradient(135deg, #f2ede6 0%, #faf8f5 25%, #f0e6da 50%, #faf8f5 75%, #ede4d8 100%);
+  background-size: 300% 300%;
+  animation: tc-hero-gradient 12s ease infinite;
+}
+
+/* Enhanced product card hover — lift + deeper shadow + gradient border */
+.woocommerce ul.products li.product {
+  position: relative;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.woocommerce ul.products li.product:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(44, 44, 46, 0.14), 0 2px 8px rgba(184, 112, 75, 0.08);
+  border-color: var(--tc-accent);
+}
+
+/* Product image hover scale */
+.woocommerce ul.products li.product a img {
+  transition: transform 0.4s ease, opacity 0.2s ease;
+}
+.woocommerce ul.products li.product:hover a img {
+  transform: scale(1.03);
+  opacity: 1;
+}
+
+/* Glassmorphism category cards */
+.tc-category-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(224, 219, 212, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.tc-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(44, 44, 46, 0.12), 0 0 0 1px rgba(184, 112, 75, 0.15);
+  border-color: var(--tc-accent);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ============================================================
+   SCOLTA SEARCH THEMING — Earth-Tone Integration
+   ============================================================ */
+
+#scolta-search {
+  --scolta-primary: #5c3d2e;
+  --scolta-primary-hover: #4a2f22;
+  --scolta-accent: #b8704b;
+  --scolta-bg: #faf8f5;
+  --scolta-card-bg: #fff;
+  --scolta-text: #333;
+  --scolta-text-muted: #666;
+  --scolta-border: #e0d5c8;
+  --scolta-highlight: #fff3cd;
+  --scolta-summary-bg-start: #fdf8f0;
+  --scolta-summary-bg-mid: #f8f0e5;
+  --scolta-summary-border: #e0d0bc;
+  --scolta-badge-bg: rgba(184, 112, 75, 0.1);
+}
+
+/* Search input */
+#scolta-search .scolta-search-input {
+  border: 2px solid var(--tc-border);
+  border-radius: var(--tc-radius-lg);
+  font-family: var(--tc-font-body);
+  background: var(--tc-card-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#scolta-search .scolta-search-input:focus-within {
+  border-color: var(--tc-accent);
+  box-shadow: 0 4px 24px rgba(184, 112, 75, 0.12);
+}
+
+/* Search button */
+#scolta-search .scolta-search-btn {
+  background: var(--tc-accent);
+  border-radius: var(--tc-radius);
+  font-family: var(--tc-font-body);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background 0.2s;
+}
+#scolta-search .scolta-search-btn:hover {
+  background: var(--tc-accent-dark);
+}
+
+/* AI summary panel */
+#scolta-search .scolta-summary {
+  border-left: 4px solid var(--tc-accent);
+  border-radius: 0 var(--tc-radius-lg) var(--tc-radius-lg) 0;
+  font-family: var(--tc-font-body);
+}
+
+/* Result cards */
+#scolta-search .scolta-result-card {
+  border: 1px solid var(--tc-border);
+  border-radius: var(--tc-radius-lg);
+  background: var(--tc-card-bg);
+  box-shadow: var(--tc-shadow-card);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+#scolta-search .scolta-result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tc-shadow-hover);
+}
+
+/* Result titles */
+#scolta-search .scolta-result-title {
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+}
+#scolta-search .scolta-result-title a {
+  color: var(--tc-accent);
+}
+#scolta-search .scolta-result-title a:hover {
+  color: var(--tc-accent-dark);
+}
+
+/* Filter sidebar */
+#scolta-search .scolta-filters {
+  background: var(--tc-bg-alt);
+  border: 1px solid var(--tc-border);
+  border-radius: var(--tc-radius-lg);
+  font-family: var(--tc-font-body);
+}
+#scolta-search .scolta-filter-heading {
+  font-family: var(--tc-font-heading);
+  color: var(--tc-text);
+}
