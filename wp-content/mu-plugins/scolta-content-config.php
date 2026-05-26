@@ -136,7 +136,7 @@ function tc_enrich_product_content_item( $item, $post ) {
 	}
 
 	$structured_html = '<div class="tc-product-structured-data">'
-		. '<p>' . implode( '</p><p>', array_map( 'esc_html', $lines ) ) . '</p>'
+		. '<p>' . implode( '</p> <p>', array_map( 'esc_html', $lines ) ) . '</p>'
 		. '</div>';
 
 	return $item->cloneWith( array(
