@@ -1065,12 +1065,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tag1consulting/scolta-php.git",
-                "reference": "509dcc44f5dbc6721baa893d1ca704b31ad96170"
+                "reference": "7b9d632d6aafbc76e705474f40965dd1f2946596"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/509dcc44f5dbc6721baa893d1ca704b31ad96170",
-                "reference": "509dcc44f5dbc6721baa893d1ca704b31ad96170",
+                "url": "https://api.github.com/repos/tag1consulting/scolta-php/zipball/7b9d632d6aafbc76e705474f40965dd1f2946596",
+                "reference": "7b9d632d6aafbc76e705474f40965dd1f2946596",
                 "shasum": ""
             },
             "require": {
@@ -1105,7 +1105,16 @@
             },
             "archive": {
                 "exclude": [
-                    "tests/"
+                    "tests/",
+                    "scripts/",
+                    "benchmarks/",
+                    ".github/",
+                    "phpunit.xml",
+                    ".php-cs-fixer.dist.php",
+                    "CLAUDE.md",
+                    ".editorconfig",
+                    "docs/BENCHMARKS-LATEST.md",
+                    "docs/LANGUAGE_PARITY.md"
                 ]
             },
             "scripts": {
@@ -1134,12 +1143,26 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Tag1 Consulting",
+                    "homepage": "https://tag1.com"
+                }
+            ],
             "description": "AI-powered search with Pagefind — PHP language binding",
+            "homepage": "https://tag1.com",
+            "keywords": [
+                "ai",
+                "pagefind",
+                "scoring",
+                "search",
+                "wasm"
+            ],
             "support": {
-                "source": "https://github.com/tag1consulting/scolta-php/tree/main",
-                "issues": "https://github.com/tag1consulting/scolta-php/issues"
+                "issues": "https://github.com/tag1consulting/scolta-php/issues",
+                "source": "https://github.com/tag1consulting/scolta-php"
             },
-            "time": "2026-05-26T23:51:54+00:00"
+            "time": "2026-05-27T04:23:52+00:00"
         },
         {
             "name": "voku/portable-ascii",
