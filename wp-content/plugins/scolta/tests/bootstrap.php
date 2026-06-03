@@ -20,8 +20,14 @@ if (!defined('WP_CONTENT_DIR')) {
 if (!file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
     file_put_contents(ABSPATH . 'wp-admin/includes/upgrade.php', "<?php\n// Stub for testing.\n");
 }
+if (!file_exists(ABSPATH . 'wp-admin/includes/file.php')) {
+    file_put_contents(ABSPATH . 'wp-admin/includes/file.php', "<?php\n// Stub for testing.\n");
+}
 if (!defined('WPINC')) {
     define('WPINC', 'wp-includes');
+}
+if (!defined('WP_DEBUG')) {
+    define('WP_DEBUG', true);
 }
 
 // Plugin constants are defined by scolta.php when it's loaded below.
@@ -181,10 +187,26 @@ if (!function_exists('rest_url')) {
 }
 
 // Script/style stubs (with optional tracking for tests).
+if (!function_exists('wp_register_script')) {
+    function wp_register_script($handle, $src = '', array $deps = [], $ver = false, $args = []): bool {
+        return true;
+    }
+}
+if (!function_exists('wp_add_inline_script')) {
+    function wp_add_inline_script(string $handle, string $data, string $position = 'after'): bool {
+        if (isset($GLOBALS['scolta_inline_scripts'])) {
+            $GLOBALS['scolta_inline_scripts'][$handle][] = $data;
+        }
+        return true;
+    }
+}
 if (!function_exists('wp_enqueue_script')) {
     function wp_enqueue_script(string $handle, string $src = '', array $deps = [], $ver = false, $args = []): void {
         if (isset($GLOBALS['scolta_enqueued_scripts'])) {
             $GLOBALS['scolta_enqueued_scripts'][] = $handle;
+        }
+        if (isset($GLOBALS['scolta_enqueued_script_versions'])) {
+            $GLOBALS['scolta_enqueued_script_versions'][$handle] = $ver;
         }
     }
 }
@@ -192,6 +214,9 @@ if (!function_exists('wp_enqueue_style')) {
     function wp_enqueue_style(string $handle, string $src = '', array $deps = [], $ver = false, string $media = 'all'): void {
         if (isset($GLOBALS['scolta_enqueued_styles'])) {
             $GLOBALS['scolta_enqueued_styles'][] = $handle;
+        }
+        if (isset($GLOBALS['scolta_enqueued_style_versions'])) {
+            $GLOBALS['scolta_enqueued_style_versions'][$handle] = $ver;
         }
     }
 }
@@ -274,6 +299,13 @@ if (!function_exists('checked')) {
         return $result;
     }
 }
+if (!function_exists('selected')) {
+    function selected($selected, $current = true, bool $echo = true): string {
+        $result = (string) $selected === (string) $current ? ' selected="selected"' : '';
+        if ($echo) { echo $result; }
+        return $result;
+    }
+}
 if (!function_exists('get_admin_page_title')) {
     function get_admin_page_title(): string { return 'Scolta AI Search'; }
 }
@@ -296,6 +328,19 @@ if (!function_exists('as_schedule_single_action')) {
 }
 if (!function_exists('as_unschedule_all_actions')) {
     function as_unschedule_all_actions($hook, $args = null, $group = '') {}
+}
+
+// SSL / scheme stubs.
+if (!function_exists('is_ssl')) {
+    function is_ssl(): bool { return $GLOBALS['test_is_ssl'] ?? true; }
+}
+if (!function_exists('set_url_scheme')) {
+    function set_url_scheme(string $url, ?string $scheme = null): string {
+        if (!$scheme) {
+            $scheme = is_ssl() ? 'https' : 'http';
+        }
+        return preg_replace('#^\w+://#', $scheme . '://', $url);
+    }
 }
 
 // Misc stubs.
@@ -439,11 +484,12 @@ if (!function_exists('get_the_date')) {
 }
 if (!function_exists('wp_upload_dir')) {
     function wp_upload_dir(): array {
+        $baseurl = $GLOBALS['test_upload_baseurl'] ?? 'https://example.com/wp-content/uploads';
         return [
             'basedir' => WP_CONTENT_DIR . '/uploads',
-            'baseurl' => 'https://example.com/wp-content/uploads',
+            'baseurl' => $baseurl,
             'path' => WP_CONTENT_DIR . '/uploads/' . date('Y/m'),
-            'url' => 'https://example.com/wp-content/uploads/' . date('Y/m'),
+            'url' => $baseurl . '/' . date('Y/m'),
         ];
     }
 }
@@ -587,6 +633,40 @@ if (!class_exists('WP_Query')) {
         public array $posts = [];
         public int $max_num_pages = 0;
         public function __construct(array $args = []) {}
+    }
+}
+
+// WP_Filesystem stubs.
+if (!class_exists('WP_Filesystem_Direct')) {
+    class WP_Filesystem_Direct {
+        public function exists(string $path): bool { return file_exists($path); }
+        public function delete(string $path, bool $recursive = false): bool {
+            if (!file_exists($path)) { return false; }
+            if (is_dir($path) && $recursive) {
+                $it = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::CHILD_FIRST
+                );
+                foreach ($it as $file) {
+                    if ($file->isDir()) { @rmdir($file->getPathname()); }
+                    else { @unlink($file->getPathname()); }
+                }
+                return @rmdir($path);
+            }
+            if (is_dir($path)) { return @rmdir($path); }
+            return @unlink($path);
+        }
+        public function rmdir(string $path, bool $recursive = false): bool {
+            return $this->delete($path, $recursive);
+        }
+    }
+}
+if (!function_exists('WP_Filesystem')) {
+    function WP_Filesystem(): bool {
+        if (empty($GLOBALS['wp_filesystem'])) {
+            $GLOBALS['wp_filesystem'] = new WP_Filesystem_Direct();
+        }
+        return true;
     }
 }
 

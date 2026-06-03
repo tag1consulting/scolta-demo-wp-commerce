@@ -13,6 +13,8 @@ class ShortcodeTest extends TestCase {
         $GLOBALS['wp_options'] = [];
         $GLOBALS['scolta_enqueued_scripts'] = [];
         $GLOBALS['scolta_enqueued_styles'] = [];
+        $GLOBALS['scolta_enqueued_script_versions'] = [];
+        $GLOBALS['scolta_enqueued_style_versions'] = [];
         $GLOBALS['scolta_localized_scripts'] = [];
 
         // Set up default settings so render() can create a ScoltaConfig.
@@ -36,6 +38,8 @@ class ShortcodeTest extends TestCase {
         unset(
             $GLOBALS['scolta_enqueued_scripts'],
             $GLOBALS['scolta_enqueued_styles'],
+            $GLOBALS['scolta_enqueued_script_versions'],
+            $GLOBALS['scolta_enqueued_style_versions'],
             $GLOBALS['scolta_localized_scripts']
         );
     }
@@ -106,6 +110,52 @@ class ShortcodeTest extends TestCase {
             'scolta-search',
             $GLOBALS['scolta_enqueued_styles'],
             'wp_enqueue_style should be called with handle "scolta-search"'
+        );
+    }
+
+    // -------------------------------------------------------------------
+    // Asset cache-busting — version must track the asset file, not the
+    // static SCOLTA_VERSION constant (which never changes between dev
+    // builds, so HTTP caches kept serving stale JS/CSS after a deploy).
+    // -------------------------------------------------------------------
+
+    public function test_scolta_js_version_is_not_static_plugin_version(): void {
+        Scolta_Shortcode::render();
+
+        $ver = $GLOBALS['scolta_enqueued_script_versions']['scolta-search'] ?? null;
+        $this->assertNotNull( $ver, 'scolta.js should be enqueued with a version token' );
+        $this->assertNotSame(
+            SCOLTA_VERSION,
+            $ver,
+            'scolta.js cache token must not be the static SCOLTA_VERSION constant — '
+                . 'it does not change between dev builds, so caches serve stale JS after a deploy.'
+        );
+    }
+
+    public function test_scolta_js_version_equals_asset_filemtime(): void {
+        Scolta_Shortcode::render();
+
+        $ver = $GLOBALS['scolta_enqueued_script_versions']['scolta-search'] ?? null;
+        $this->assertSame(
+            filemtime( SCOLTA_PLUGIN_DIR . 'assets/js/scolta.js' ),
+            $ver,
+            'scolta.js cache token must equal the asset file mtime so it changes whenever the file changes.'
+        );
+    }
+
+    public function test_scolta_css_version_equals_asset_filemtime(): void {
+        Scolta_Shortcode::render();
+
+        $ver = $GLOBALS['scolta_enqueued_style_versions']['scolta-search'] ?? null;
+        $this->assertNotSame(
+            SCOLTA_VERSION,
+            $ver,
+            'scolta.css cache token must not be the static SCOLTA_VERSION constant.'
+        );
+        $this->assertSame(
+            filemtime( SCOLTA_PLUGIN_DIR . 'assets/css/scolta.css' ),
+            $ver,
+            'scolta.css cache token must equal the asset file mtime.'
         );
     }
 
@@ -195,6 +245,111 @@ class ShortcodeTest extends TestCase {
         // Instead, we'll just verify the admin path works (tested above)
         // and test the class structure.
         $this->assertTrue(true, 'Non-admin path returns empty string when index missing');
+    }
+
+    // -------------------------------------------------------------------
+    // Attribution
+    // -------------------------------------------------------------------
+
+    public function test_attribution_hidden_by_default(): void {
+        $output = Scolta_Shortcode::render();
+        $this->assertStringNotContainsString( 'Powered by Scolta', $output );
+    }
+
+    public function test_attribution_shown_when_enabled(): void {
+        $settings                      = get_option( 'scolta_settings', [] );
+        $settings['show_attribution']  = true;
+        update_option( 'scolta_settings', $settings );
+
+        $output = Scolta_Shortcode::render();
+        $this->assertStringContainsString( 'Powered by Scolta', $output );
+    }
+
+    public function test_attribution_hidden_when_explicitly_disabled(): void {
+        $settings                      = get_option( 'scolta_settings', [] );
+        $settings['show_attribution']  = false;
+        update_option( 'scolta_settings', $settings );
+
+        $output = Scolta_Shortcode::render();
+        $this->assertStringNotContainsString( 'Powered by Scolta', $output );
+    }
+
+    // -------------------------------------------------------------------
+    // URL scheme correction (issue #97)
+    // -------------------------------------------------------------------
+
+    public function test_pagefind_url_uses_https_when_siteurl_is_http_but_is_ssl_true(): void {
+        $GLOBALS['test_upload_baseurl'] = 'http://example.com/wp-content/uploads';
+        $GLOBALS['test_is_ssl'] = true;
+
+        scolta_activate();
+        $settings   = get_option('scolta_settings', []);
+        $output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+        $index_dir  = $output_dir . '/pagefind';
+        @mkdir($index_dir, 0755, true);
+        file_put_contents($index_dir . '/pagefind-entry.json', '{}');
+
+        Scolta_Shortcode::render();
+
+        $config = $GLOBALS['scolta_localized_scripts']['scolta-search'];
+        $this->assertStringStartsWith(
+            'https://',
+            $config['pagefindPath'],
+            'Pagefind URL must use https:// when is_ssl() returns true'
+        );
+        $this->assertStringNotContainsString(
+            'http://',
+            $config['pagefindPath'],
+            'Pagefind URL must not contain http:// on an HTTPS page'
+        );
+
+        unset($GLOBALS['test_upload_baseurl'], $GLOBALS['test_is_ssl']);
+    }
+
+    public function test_pagefind_url_stays_https_when_siteurl_already_https(): void {
+        $GLOBALS['test_upload_baseurl'] = 'https://example.com/wp-content/uploads';
+        $GLOBALS['test_is_ssl'] = true;
+
+        scolta_activate();
+        $settings   = get_option('scolta_settings', []);
+        $output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+        $index_dir  = $output_dir . '/pagefind';
+        @mkdir($index_dir, 0755, true);
+        file_put_contents($index_dir . '/pagefind-entry.json', '{}');
+
+        Scolta_Shortcode::render();
+
+        $config = $GLOBALS['scolta_localized_scripts']['scolta-search'];
+        $this->assertStringStartsWith(
+            'https://',
+            $config['pagefindPath'],
+            'Pagefind URL must remain https:// when siteurl is already HTTPS'
+        );
+
+        unset($GLOBALS['test_upload_baseurl'], $GLOBALS['test_is_ssl']);
+    }
+
+    public function test_pagefind_url_uses_http_when_not_ssl(): void {
+        $GLOBALS['test_upload_baseurl'] = 'http://example.com/wp-content/uploads';
+        $GLOBALS['test_is_ssl'] = false;
+
+        scolta_activate();
+        $settings   = get_option('scolta_settings', []);
+        $output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+        $index_dir  = $output_dir . '/pagefind';
+        @mkdir($index_dir, 0755, true);
+        file_put_contents($index_dir . '/pagefind-entry.json', '{}');
+
+        Scolta_Shortcode::render();
+
+        $config = $GLOBALS['scolta_localized_scripts']['scolta-search'];
+        $this->assertStringStartsWith(
+            'http://',
+            $config['pagefindPath'],
+            'Pagefind URL should use http:// when is_ssl() returns false'
+        );
+
+        unset($GLOBALS['test_upload_baseurl'], $GLOBALS['test_is_ssl']);
     }
 
     // -------------------------------------------------------------------

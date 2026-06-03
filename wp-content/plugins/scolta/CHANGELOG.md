@@ -2,15 +2,106 @@
 
 All notable changes to scolta-wp will be documented in this file.
 
-This project uses [Semantic Versioning](https://semver.org/). Major versions are synchronized across all Scolta packages.
+This project uses [Semantic Versioning](https://semver.org/). Major versions are synchronized across all Scolta packages; minor and patch versions are released independently per package.
 
-## [Unreleased]
+## [1.0.3] - 2026-06-02
+
+### Fixed
+- **Browsers no longer serve a stale `scolta.js`/`scolta.css` after a deploy.** Root cause: the enqueue cache-busting token (`$ver`) was `SCOLTA_VERSION`, a static constant (`1.0.3-dev`) that does not change between dev builds, so the asset URL's `?ver=` stayed identical across deploys and HTTP caches kept serving the old file (requiring a forced hard reload — e.g. the #162 verification showed the pre-subword build until a manual hard refresh). The token is now `filemtime()` of the actual shipped asset, so it changes whenever the file changes and a normal reload picks up fresh JS/CSS. `SCOLTA_VERSION` is unchanged for the plugin header/version reporting and the prompt-cache option. Added `ShortcodeTest` coverage asserting the enqueued version is not the static constant and equals the asset's mtime.
+- **AI Provider settings field now reflects the saved provider instead of always showing Amazee when Amazee credentials are present** (display-only bug; the persisted value and live API calls were already correct). The field renderer forced the selected option to `amazee` whenever `get_api_key_source()` detected Amazee credentials (e.g. an auto-provisioned trial), ignoring the saved `ai_provider`. The explicitly-saved provider now wins; source auto-detection is only a fallback for the empty state (no provider ever saved). Added `AdminProviderFieldTest` covering the render. (#123)
+
+### Added
+- **`expand_subword_deny_list` scoring setting (default empty).** New "Sub-word Guard Denylist" admin field (Scoring section) + sanitizer for the scolta-php sub-word query-term exemption (scolta-php#156 follow-up). Words listed here are never auto-exempted from the sub-word frequency guard even when the user types them, so a typed-but-generic word (e.g. `hot` on a recipe site) cannot re-flood results. Unlike Custom Stop Words, listed words stay searchable and scorable. Added `AdminSubwordDenyListFieldTest` covering the render and sanitizer.
+- **`expand_subword_max_frequency` scoring setting (default `0.05`).** New admin field (Scoring section) + sanitizer + activation default for the scolta-php sub-word frequency guard (scolta-php#156). Controls when a multi-word expansion term's constituent words are searched on their own — restoring broad-query recall while blocking high-frequency noise.
+
+### Changed
+- **Re-synced `assets/js/scolta.js` (and its `.sha256`) and the bundled WASM (`assets/wasm/scolta_core.js`/`scolta_core_bg.wasm`) to the canonical scolta-php source after the query-word-importance line was reverted.** scolta-php reverted the whole query-word-importance line ([scolta-php#165](https://github.com/tag1consulting/scolta-php/pull/165): #163 exemption + #164 ranking) and scolta-core reverted the scoring weight ([scolta-core#32](https://github.com/tag1consulting/scolta-core/pull/32): #31) after validation showed both were inert — they changed result ordering on zero real queries. The committed copies are restored to that reverted canonical: no `query_word_importance` plumbing, no `incidental_match_weight`, no `ai_query_word_importance` gate, and the bundled WASM returns to the pre-#31 binary. The #156 sub-word frequency guard (#161) and the Fix A/D typed-query-term exemption (#162) are unaffected.
+- Opened 1.0.3-dev development cycle.
+- **Scoring default tuning (matches scolta-php):** `cross_list_bonus` `0.15` → `0.05`, `recency_boost_max` `0.5` → `0.25`, `title_match_boost` `1.0` → `2.0` in activation defaults and admin field defaults.
+- **Synced `assets/js/scolta.js` (and its `.sha256`) to the canonical scolta-php source.** Brings the committed copy up to date with the frequency-guarded sub-word expansion ([scolta-php#156](https://github.com/tag1consulting/scolta-php/issues/156)/#161) and the query-typed-word exemption ([scolta-php#162](https://github.com/tag1consulting/scolta-php/pull/162)) — restoring broad-query recall while the per-site `expand_subword_deny_list` vetoes typed-but-generic words. The settings plumbing landed previously; this brings the actual browser behavior in sync.
+
+## [1.0.2] - 2026-05-30
+
+### Changed
+- Opened 1.0.2-dev development cycle.
+- Export files now use nested directory layout mirroring canonical URLs instead of flat `{id}.html`, aligning binary indexer output with PHP indexer (scolta-php#157).
+- HTML file counting in status/health uses recursive directory walk instead of flat glob.
+- AI summary citation URLs now prefer canonical `meta.url` over Pagefind file path.
+
+## [1.0.1] - 2026-05-29
+
+### Fixed
+- **Raised minimum WordPress version to 6.1 (Plugin Check).** `wp_cache_flush_group()` requires WP 6.1; Plugin Check flags the call regardless of the `function_exists()` guard. Removed the dead `wp_cache_flush()` fallback. WP 6.0 is EOL.
+- **Sanitized `$_SERVER` reads (Plugin Check).** Wrapped `$_SERVER['argv'][0]` in CLI and `$_SERVER['SCOLTA_API_KEY']`/`$_ENV['SCOLTA_API_KEY']` in AI service with `sanitize_text_field( wp_unslash() )`.
+- **REST API health handler uses `SCOLTA_PLUGIN_DIR` not `ABSPATH` (WP.org review).** `class-scolta-rest-api.php` line 378 passed `projectDir: ABSPATH` to `HealthChecker`, which locates the pagefind binary relative to the site root instead of the plugin. Changed to `SCOLTA_PLUGIN_DIR`.
+- **Removed all `ini_set('display_errors')` calls (WP.org review).** 18 occurrences in `cli/class-scolta-cli.php` removed along with their paired `phpcs:ignore` comments and now-empty `finally` blocks. Regression test asserts no `ini_set('display_errors')` or `error_reporting()` calls remain.
+- **Version validation covers all four locations.** `validate-release.php` now checks `readme.txt` `Stable Tag` in addition to `composer.json`, plugin header, and `SCOLTA_VERSION` constant. CLAUDE.md updated accordingly.
+- **Recommitted `composer.lock`** (was gitignored in pre-1.0 cleanup). Required for CI release workflow's `composer update tag1/scolta-php` partial update step.
+- **Added nested `vendor/*/vendor/*` exclusion** to release ZIP command, preventing path-repo builds from shipping dev dependencies.
+- **Added ZIP size limit (5 MB) and nested vendor/ check** to `validate-zip` CI job.
+- **Structural tests** to prevent `.gitignore` regression on `composer.lock` and ensure release workflow hardening persists.
+- **Updated `readme.txt` Tested up to WordPress 7.0** (was 6.9). wordpress.org rejects uploads where this value is below the current WordPress version.
+- **Added `check-wp-version` job to release workflow** that queries the WordPress API and fails the release if `Tested up to` is stale. Runs before the build job so stale versions are caught before creating the ZIP or GitHub release.
+
+### Changed
+- **Extracted distribution build into reusable scripts.** Inline build logic from `release.yml` moved to `scripts/build-dist.sh`; inline validation moved to `scripts/validate-dist.sh`. Both release and CI workflows call the scripts. New `dist-build` CI job runs build + validate on every PR/push, catching regressions before a tag is cut.
+- **Decoupled release build from lockstep scolta-php tagging.** `release.yml` no longer checks out scolta-php at the same tag or runs `composer update tag1/scolta-php`. The committed `composer.lock` pins scolta-php to a stable Packagist release (currently 1.0.0), and the release job uses `composer install --no-dev` against that lock. A new `lock-guard` CI job (in both `ci.yml` and `release.yml`) fails if the committed lock pins scolta-php to a path, dev, or pre-release source.
+- **Release archive uses fail-closed allowlist (WP.org review).** The ZIP build now copies enumerated root files, source dirs by PHP extension, and assets by CSS/JS/WASM extension — rather than using a denylist of `--exclude` patterns. This structurally prevents `.sha256`, `.toml`, dev config, and other non-permitted files from shipping. Dependency `LICENSE*` files are retained (required by their licenses). `validate-zip` adds disallowed-extension checks.
+- **Removed redundant VCS repository** for scolta-php from `composer.json` (path repo covers local dev; Packagist covers release).
+
+## [1.0.0] - 2026-05-27
+
+### Added
+- **Sync scolta.js from scolta-php: exact title match boost.** New `exact_title_match_boost` config key (default 5.0x) — when a result's title exactly matches the search query (case-insensitive), applies a large multiplicative boost so it always ranks #1 regardless of BM25 differentials. ([scolta-php#138](https://github.com/tag1consulting/scolta-php/pull/138))
+
+### Fixed
+- **Sync scolta.js from scolta-php: filter exact-match-first and filter_hint canonicalization.** Two-pass matching prevents substring overlap (e.g., "Apollo 1" selected over "Apollo 11"). filter_hint values now canonicalized against cached Pagefind filters. ([scolta-php#149](https://github.com/tag1consulting/scolta-php/pull/149))
+- **PHP Notice from `output_dir` ending in `/pagefind` visible to end users.** `render()` now silently strips a trailing `/pagefind` from `output_dir` before using it, preventing double-nested index paths. The `_doing_it_wrong()` warning is gated behind `WP_DEBUG` so end users never see configuration notices on the front-end. ([#90](https://github.com/tag1consulting/scolta-wp/issues/90))
+- **Pagefind bundle URL uses `http://` scheme on HTTPS sites behind reverse proxies.** `dir_to_url()` now applies `set_url_scheme()` to the uploads-derived URL, ensuring the Pagefind bundle and CSS URLs match the page's scheme. Also normalizes symlinked paths via `realpath()` on all comparison branches for consistent path resolution. ([#97](https://github.com/tag1consulting/scolta-wp/issues/97))
+- **AI Overview renders `*italic*` markdown as literal asterisks.** Updated `scolta.js` copy from scolta-php to include `*italic*` → `<em>` and `***bold italic***` → `<strong><em>` rendering. ([tag1consulting/scolta-php#125](https://github.com/tag1consulting/scolta-php/issues/125))
+- **Sync scolta.js from scolta-php: multi-value filter array counting.** `computeFilterCounts()` now iterates all values in multi-value filter arrays instead of only counting `val[0]`. Articles tagged with multiple topics now increment each topic in the facet display.
+- **Sync scolta.js from scolta-php: expansion merge scoring fix.** Cross-list results now receive an additive bonus instead of max(score) deduplication. Multi-word expansion terms are no longer word-exploded into individual search queries. JS fallback `EXPAND_PRIMARY_WEIGHT` default aligned with PHP (0.5). New `cross_list_bonus` config key (default 0.15). ([scolta-php#137](https://github.com/tag1consulting/scolta-php/pull/137))
+- **Sync scolta.js from scolta-php: facet count refresh and multi-value OR fix.** Facet sidebar counts now refresh after filter selection. Multi-value facet filters (selecting two+ values in the same dimension) now produce OR (union) results instead of silently returning zero. ([scolta-php#131](https://github.com/tag1consulting/scolta-php/pull/131), [scolta-php#132](https://github.com/tag1consulting/scolta-php/pull/132))
+
+### Changed
+- **Sync scolta.js from scolta-php: replace sort intersection with filter+sort discovery.** The sort path now discovers available Pagefind filters at init and matches subject_terms keywords against filter values, passing matched filters to Pagefind alongside the sort override. Replaces the fragile subject intersection heuristic. Sites with structured metadata get precise filter+sort; sites without get honest sort-only. ([scolta-php#130](https://github.com/tag1consulting/scolta-php/pull/130))
+- **`tag1/scolta-php` constraint changed from `^1.0@RC` to `^1.0` and `minimum-stability` changed to `stable`.** The `@RC` flag is no longer needed now that 1.0.0 stable is shipping.
+- **`scolta_cleanup_nested_indexes()` now uses `WP_Filesystem` instead of direct `rmdir()` calls.** Required by WordPress.org plugin review guidelines.
+- **Uninstall handler now cleans up `scolta_amazee_credentials` option, user meta (`scolta_dismissed_rebuild_notice`, `scolta_amazee_flow`), and all Action Scheduler hooks.**
+- **Deactivation hook now unschedules `scolta_amazee_provision` Action Scheduler actions.**
+- **`composer.lock` removed from version control.** Consumers generate their own on `composer install`.
+- **Added Amazee.ai to `readme.txt` External Services section** for WordPress.org compliance.
+- **Added WooCommerce FAQ entry to `readme.txt`.**
+- **Added `cleanup` subcommand to README WP-CLI reference.**
+- **Updated `readme.txt` Changelog with rc3 and rc4 entries; updated Upgrade Notice for 1.0.0.**
+- **Added link references to CHANGELOG.md.**
+
+## [1.0.0-rc4] - 2026-05-18
+
+### Added
+- **Health endpoint now includes index detail: fragment count, last-build timestamp, and integrity status.** The `GET /wp-json/scolta/v1/health` response previously returned only `index_exists: true/false`. It now mirrors the Laravel adapter by including an `index` object with `built`, `fragments` (count of Pagefind fragment files), `last_build` (ISO 8601 timestamp of most recent build), and `integrity` (validity check of pagefind.js and fragments). When integrity fails, the overall `status` is set to `degraded`. ([#57](https://github.com/tag1consulting/scolta-wp/issues/57))
+
+### Fixed
+- **Exclude `vendor/*/test/` and duplicate WASM from release ZIP.** The `release.yml` ZIP builder now excludes vendor `test/` directories (singular — `wamania/php-stemmer/test/files/` alone is ~17 MB) and the duplicate `vendor/tag1/scolta-php/assets/wasm/` (1.2 MB; the plugin ships its own canonical copy at `assets/wasm/`). The `validate-zip` CI job now fails if either appears in the archive. ([#60](https://github.com/tag1consulting/scolta-wp/issues/60))
+- **Align `readme.txt` Stable Tag with `SCOLTA_VERSION`.** The Stable Tag was `1.0.0-rc2` while the plugin header and constant were `1.0.0-dev`, causing a mismatch that WordPress.org flags during plugin review. Both are now consistent. A new `VersionConsistencyTest::test_readme_stable_tag_matches_constant` test enforces this invariant going forward. ([#68](https://github.com/tag1consulting/scolta-wp/issues/68))
+- **Add `== External Services ==` section to `readme.txt`.** Documents all external HTTP connections as required by WordPress.org plugin review guidelines: GitHub API (pagefind download), Pagefind binary from the Pagefind org on GitHub, and AI provider APIs (Anthropic, OpenAI, OpenAI-compatible endpoints, wp-ai-services). Includes terms of service and privacy policy links for each service. ([#70](https://github.com/tag1consulting/scolta-wp/issues/70))
+- **Exclude log files and vendor test fixtures from release ZIP.** The `release.yml` ZIP builder now excludes `*.log` files, `vendor/*/tests/` directories, and dev-only config files (`phpunit.xml*`, `phpstan.neon*`, `.php-cs-fixer*`) from all vendor packages. The `validate-zip` CI job now fails if any `.log` files or vendor `tests/` content appear in the archive. ([#69](https://github.com/tag1consulting/scolta-wp/issues/69))
+- **Replace inline `<script>` tags in admin class with `wp_add_inline_script()`.** The three `echo '<script>'` blocks in `render_preset_field()` and `render_api_key_status_field()` have been converted to use `wp_register_script()` / `wp_add_inline_script()` via a new `enqueue_admin_scripts()` method hooked on `admin_enqueue_scripts`. Translated strings are passed via `wp_localize_script()` as `scoltaAdminL10n`. Required by WordPress.org plugin review guidelines. ([#66](https://github.com/tag1consulting/scolta-wp/issues/66))
+
+### Added
+- **"Show Scolta attribution" setting (default: off).** Adds a checkbox to Settings → Scolta → Display: "Show 'Powered by Scolta' on the search page". When disabled (the default), no attribution appears in shortcode output. When enabled by the site administrator, a `<p class="scolta-attribution">Powered by Scolta</p>` element is appended to the `[scolta_search]` shortcode output. Requires scolta-php ≥ 1.0.0-dev (which adds the `showAttribution` config option). ([#67](https://github.com/tag1consulting/scolta-wp/issues/67))
+
+### Fixed
+- **`dir_to_url()` now uses `wp_upload_dir()['baseurl']` for index paths under the uploads directory.** Previously the method resolved all paths relative to `ABSPATH` via `site_url()`, which produces the wrong URL on sites with offloaded uploads (S3, CDN). The check order is now uploads → wp-content → site root, so the canonical `wp_upload_dir()` base URL is used whenever the Pagefind index lives under `wp-content/uploads/` (the default). The dead `content_url()` branch (unreachable because ABSPATH was checked first) is now live and correctly handles non-uploads wp-content paths. ([#71](https://github.com/tag1consulting/scolta-wp/issues/71))
+- **Sync scolta.js: foreign language search no longer flashes "No Results Found" before expansion results appear.** See [scolta-php#111](https://github.com/tag1consulting/scolta-php/issues/111).
+- **Text domain changed from `scolta` to `scolta-ai-search` in all i18n function calls.** WordPress.org requires the text domain to match the plugin slug so community translations work via translate.wordpress.org. All 236 occurrences of `'scolta'` as the text domain argument in `__()`, `_e()`, `esc_html__()`, `esc_html_e()`, `esc_attr__()`, `esc_attr_e()`, `_n()`, `_x()`, `_ex()`, and `_nx()` have been updated. The `Text Domain:` plugin header has also been updated. Non-i18n uses of `'scolta'` (option names, slugs, hook names, Action Scheduler group names) are unchanged. ([#72](https://github.com/tag1consulting/scolta-wp/issues/72))
 
 ### Tests
 - **`CliMemoryHandlingTest`** — 15 structural tests verifying `memory_abort` and `index_only_complete` branch logic in `do_build_php()`. Guards against regressions in the conditions that trigger background resume and ensure helpful error messages when the memory limit is hit before any chunks are committed.
 - **`OutputDirTest`** — Tests verifying the unified `output_dir` default, `_doing_it_wrong()` validation, dual-layout detection preference, `scolta_cleanup_nested_indexes()` behavior, and that all components (CLI, shortcode, rebuild scheduler, REST API) use the canonical helper.
 
 ### Fixed
+- **`make_handler()` now passes `sortableFields`, `sortableFieldDescriptions`, `filterFields`, `filterFieldDescriptions`, `aiExpandQuery`, `aiSummarize`, and `expandPrimaryWeight` to `AiEndpointHandler`.** These were silently defaulting to empty/false/zero because `make_handler()` constructed `AiEndpointHandler` with positional arguments and missed all named parameters added after `aiLanguages`. Sort-intent detection (`sort_hint` in expand-query responses) was non-functional on WordPress sites even when `sortable_fields` was configured.
 - **CRITICAL: `output_dir` default unified across all components.** The previous default (`wp-content/uploads/scolta/pagefind`) ended in `/pagefind`, which interacted with the PHP indexer's `atomicSwap()` normalization to create double-nested `pagefind/pagefind/` directories. The shortcode's dual-layout detection checked the PHP-indexer path first, so any stale double-nested artifact won over the correct single-nested index — serving outdated Pagefind content indefinitely. Root fix: the canonical default is now `wp-content/uploads/scolta` (no `/pagefind` suffix). A single `scolta_default_output_dir()` function is the only place to change the default; every fallback in the shortcode, CLI, rebuild scheduler, REST API, and admin now calls it. Activation migrates both old defaults (`ABSPATH/scolta-pagefind` and `uploads/scolta/pagefind`) to the new canonical value.
 - **Stale double-nested index cleanup.** `scolta_cleanup_nested_indexes()` is called after every successful PHP indexer build (CLI and background scheduler). Removes any `{output_dir}/pagefind/pagefind/` artifact left by previously incorrect builds, logging the removal to the PHP error log.
 - **Shortcode path validation.** If `output_dir` is saved with a trailing `/pagefind` suffix (e.g., a custom setting using the old convention), `Scolta_Shortcode::render()` now emits a `_doing_it_wrong()` developer notice explaining the double-nesting risk.
@@ -318,3 +409,28 @@ Coordinated release. Fixes memory and CLI visibility regressions surfaced by a 4
 - Plugin activation/deactivation hooks for tracker table setup and cleanup
 - Settings stored as a single serialized option (`scolta_settings`)
 - Asset enqueueing via `wp_enqueue_script` and `wp_enqueue_style` from scolta-php vendor path
+
+[Unreleased]: https://github.com/tag1consulting/scolta-wp/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/tag1consulting/scolta-wp/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/tag1consulting/scolta-wp/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/tag1consulting/scolta-wp/compare/1.0.0-rc4...v1.0.0
+[1.0.0-rc4]: https://github.com/tag1consulting/scolta-wp/compare/1.0.0-rc3...1.0.0-rc4
+[1.0.0-rc3]: https://github.com/tag1consulting/scolta-wp/compare/1.0.0-rc2...1.0.0-rc3
+[1.0.0-rc2]: https://github.com/tag1consulting/scolta-wp/compare/1.0.0-rc1...1.0.0-rc2
+[1.0.0-rc1]: https://github.com/tag1consulting/scolta-wp/compare/0.3.10...1.0.0-rc1
+[0.3.10]: https://github.com/tag1consulting/scolta-wp/compare/0.3.9...0.3.10
+[0.3.9]: https://github.com/tag1consulting/scolta-wp/compare/0.3.8...0.3.9
+[0.3.8]: https://github.com/tag1consulting/scolta-wp/compare/0.3.7...0.3.8
+[0.3.7]: https://github.com/tag1consulting/scolta-wp/compare/0.3.6...0.3.7
+[0.3.6]: https://github.com/tag1consulting/scolta-wp/compare/0.3.5...0.3.6
+[0.3.5]: https://github.com/tag1consulting/scolta-wp/compare/0.3.4...0.3.5
+[0.3.4]: https://github.com/tag1consulting/scolta-wp/compare/0.3.3...0.3.4
+[0.3.3]: https://github.com/tag1consulting/scolta-wp/compare/0.3.2...0.3.3
+[0.3.2]: https://github.com/tag1consulting/scolta-wp/compare/0.3.1...0.3.2
+[0.3.1]: https://github.com/tag1consulting/scolta-wp/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/tag1consulting/scolta-wp/compare/0.2.4...0.3.0
+[0.2.4]: https://github.com/tag1consulting/scolta-wp/compare/0.2.3...0.2.4
+[0.2.3]: https://github.com/tag1consulting/scolta-wp/compare/0.2.2...0.2.3
+[0.2.2]: https://github.com/tag1consulting/scolta-wp/compare/0.2.1...0.2.2
+[0.2.1]: https://github.com/tag1consulting/scolta-wp/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/tag1consulting/scolta-wp/releases/tag/0.2.0

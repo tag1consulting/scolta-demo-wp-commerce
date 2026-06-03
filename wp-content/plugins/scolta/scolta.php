@@ -3,23 +3,19 @@
  * Plugin Name:       Scolta AI Search
  * Plugin URI:        https://www.tag1.com/scolta
  * Description:       Zero-infrastructure AI search with Pagefind, query expansion, summarization.
- * Version:       1.0.0-dev
- * Requires at least: 6.0
- *   — No WP 6.1+ APIs used. Verified: no wp_register_block_type_from_metadata()
- *     call-style, no Interactivity API, no wp_admin_notice(), no Plugin
- *     Dependencies header. If a future change introduces a 6.x+ API, update
- *     both this header and README.md.
+ * Version:       1.0.3
+ * Requires at least: 6.1
  * Requires PHP:      8.1
  * Author:            Tag1 Consulting
  * Author URI:        https://www.tag1.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       scolta
+ * Text Domain:       scolta-ai-search
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCOLTA_VERSION', '1.0.0-dev' );
+define( 'SCOLTA_VERSION', '1.0.3' );
 define( 'SCOLTA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_FILE', __FILE__ );
@@ -88,20 +84,14 @@ function scolta_cleanup_nested_indexes( string $output_dir ): void {
 	if ( ! is_dir( $nested_dir ) ) {
 		return;
 	}
-	$it = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator( $nested_dir, FilesystemIterator::SKIP_DOTS ),
-		RecursiveIteratorIterator::CHILD_FIRST
-	);
-	foreach ( $it as $file ) {
-		if ( $file->isDir() ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Removing stale index artifact.
-			rmdir( $file->getPathname() );
-		} else {
-			wp_delete_file( $file->getPathname() );
-		}
+
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		WP_Filesystem();
 	}
-	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Removing stale index artifact.
-	rmdir( $nested_dir );
+
+	$wp_filesystem->delete( $nested_dir, true );
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Operational notice for stale artifact removal.
 	error_log( 'Scolta: Removed stale double-nested pagefind directory: ' . $nested_dir );
 }
@@ -151,14 +141,16 @@ function scolta_activate(): void {
 		'ai_summarize'               => true,
 		'ai_languages'               => array( 'en' ),
 		// Scoring.
-		'title_match_boost'          => 1.0,
+		'title_match_boost'          => 2.0,
 		'title_all_terms_multiplier' => 1.5,
 		'content_match_boost'        => 0.4,
-		'recency_boost_max'          => 0.5,
+		'recency_boost_max'          => 0.25,
 		'recency_half_life_days'     => 365,
 		'recency_penalty_after_days' => 1825,
 		'recency_max_penalty'        => 0.3,
 		'expand_primary_weight'      => 0.5,
+		'cross_list_bonus'           => 0.05,
+		'expand_subword_max_frequency' => 0.05,
 		// Display.
 		'excerpt_length'             => 300,
 		'results_per_page'           => 10,
@@ -173,7 +165,7 @@ function scolta_activate(): void {
 
 	// Ensure index directories exist in uploads (writable on all managed hosts).
 	wp_mkdir_p( $upload_dir['basedir'] . '/scolta/build' );
-	wp_mkdir_p( $upload_dir['basedir'] . '/scolta' );
+	wp_mkdir_p( $upload_dir['basedir'] . '/scolta/pagefind' );
 
 	// New installs: set defaults with autoload disabled.
 	if ( false === get_option( 'scolta_settings' ) ) {
@@ -331,6 +323,7 @@ function scolta_deactivate(): void {
 		as_unschedule_all_actions( 'scolta_process_chunk', null, 'scolta' );
 		as_unschedule_all_actions( 'scolta_finalize_build', array(), 'scolta' );
 		as_unschedule_all_actions( 'scolta_debounced_rebuild', array(), 'scolta' );
+		as_unschedule_all_actions( 'scolta_amazee_provision', array(), 'scolta' );
 	}
 
 	// Clear build locks and state.

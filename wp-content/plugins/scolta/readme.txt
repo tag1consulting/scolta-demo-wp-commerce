@@ -2,10 +2,10 @@
 
 Contributors: tag1consulting
 Tags: search, ai, pagefind, artificial intelligence, semantic search
-Requires at least: 6.0
-Tested up to: 6.9
+Requires at least: 6.1
+Tested up to: 7.0
 Requires PHP: 8.1
-Stable Tag: 1.0.0-rc2
+Stable Tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,10 @@ No. The base search tier works without any API key. AI query expansion and resul
 
 Anthropic (Claude), OpenAI, and any OpenAI-compatible endpoint (including self-hosted Ollama). Amazee.ai trial credits are provisioned automatically on first activation when no API key is configured.
 
+= Does this work with WooCommerce? =
+
+Yes. WooCommerce product metadata (price, SKU, stock status, categories) is automatically extracted and indexed. Price is emitted as a sortable field so search results can be sorted by price. WooCommerce ships with Action Scheduler, so automatic background rebuilds work out of the box with no additional dependencies.
+
 = How do I keep the search index up to date? =
 
 Install [Action Scheduler](https://actionscheduler.org/) and enable **auto_rebuild** in Settings > Scolta. The plugin will automatically queue a rebuild whenever content is saved. WooCommerce sites already have Action Scheduler installed.
@@ -70,6 +74,36 @@ Install [Action Scheduler](https://actionscheduler.org/) and enable **auto_rebui
 
 == Changelog ==
 
+= 1.0.1 =
+* WordPress.org review fixes: dist allowlist with CI guard, REST SCOLTA_PLUGIN_DIR, removed CLI display_errors.
+* Decoupled release build from lockstep scolta-php tagging (composer.lock pins scolta-php 1.0.0 from Packagist).
+* Plugin Check fixes: Requires-at-least 6.1, $_SERVER sanitization.
+* Extracted dist build/validate into reusable scripts.
+* Added check-wp-version job to release workflow.
+
+= 1.0.0 =
+* First stable release.
+* Exact title match boost, filter exact-match-first, expansion merge scoring fix.
+* Facet count refresh and multi-value OR fix, sort intersection replaced with filter+sort discovery.
+* Minimum stability changed to stable, WP_Filesystem for cleanup, uninstall handler improvements.
+
+= 1.0.0-rc4 =
+* Health endpoint now includes index detail: fragment count, last-build timestamp, and integrity status.
+* Exclude vendor test directories and duplicate WASM from release ZIP.
+* Align readme.txt Stable Tag with SCOLTA_VERSION.
+* Add External Services section to readme.txt for WordPress.org compliance.
+* Replace inline script tags with wp_add_inline_script() for WordPress.org compliance.
+* Show Scolta attribution setting (default: off).
+* dir_to_url() now uses wp_upload_dir() baseurl for index paths under the uploads directory.
+* Text domain changed to scolta-ai-search for WordPress.org translation support.
+
+= 1.0.0-rc3 =
+* PCP distribution build: zero errors, zero warnings.
+* VCS repository for scolta-php in composer.json (replaces local path reference).
+* expand_primary_weight now correctly weights original vs. expansion results.
+* WordPress Plugin Check (PCP) compliance for wordpress.org submission.
+* Documentation now clearly attributes Scolta to Tag1 Consulting.
+
 = 1.0.0-rc2 =
 * First release candidate.
 * PHP indexer as the default (no binary required).
@@ -79,8 +113,60 @@ Install [Action Scheduler](https://actionscheduler.org/) and enable **auto_rebui
 
 == Upgrade Notice ==
 
-= 1.0.0-rc2 =
-First release candidate. No stable upgrade path from pre-1.0 versions.
+= 1.0.1 =
+WordPress.org resubmission: review fixes, Plugin Check compliance, decoupled release build. No data migration needed.
+
+= 1.0.0 =
+First stable release. Upgrades from rc2/rc3/rc4 are seamless. If upgrading from pre-1.0 (0.3.x or earlier), rebuild your search index after updating: wp scolta build --force.
+
+== External Services ==
+
+This plugin connects to the following external services under specific conditions. No data is sent automatically — all connections are triggered by admin action or explicit site configuration.
+
+= GitHub API (api.github.com) =
+
+**When:** An administrator runs the `wp scolta download-pagefind` WP-CLI command to download the Pagefind binary.
+**What is sent:** A standard HTTPS GET request to `https://api.github.com/repos/CloudCannon/pagefind/releases/latest`. No personally identifiable information is transmitted beyond the standard HTTP request headers (IP address, user agent).
+**Service:** GitHub, operated by GitHub, Inc. (a subsidiary of Microsoft Corporation).
+**Terms of Service:** https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+**Privacy Statement:** https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement
+
+= Pagefind Binary (GitHub Releases / CloudCannon) =
+
+**When:** The `wp scolta download-pagefind` WP-CLI command downloads the Pagefind binary from GitHub Releases after querying the GitHub API above.
+**What is sent:** A standard HTTPS GET request to download the release archive. No personally identifiable information is transmitted beyond the standard HTTP request headers.
+**Service:** Pagefind is an open-source project (MIT license) created and maintained by CloudCannon.
+**Pagefind:** https://pagefind.app/
+**CloudCannon:** https://cloudcannon.com/
+**Pagefind License:** https://github.com/Pagefind/pagefind/blob/main/LICENSE
+
+= AI Provider APIs =
+
+**When:** A user performs a search and the site administrator has enabled AI features (`ai: true` in the Scolta configuration). AI features are disabled by default and require an API key to be configured.
+**What is sent:** The user's search query text and selected page content excerpts (for result summarization) are sent to the configured AI provider's API endpoint.
+**Providers:** The specific provider depends on site configuration. Supported providers are:
+
+* **Anthropic (Claude)** — processes search queries and page excerpts.
+  Terms of Service: https://www.anthropic.com/legal/consumer-terms
+  Privacy Policy: https://www.anthropic.com/legal/privacy
+
+* **OpenAI** — processes search queries and page excerpts.
+  Terms of Use: https://openai.com/policies/terms-of-use
+  Privacy Policy: https://openai.com/policies/privacy-policy
+
+* **OpenAI-compatible endpoints** (including self-hosted Ollama and other providers) — any endpoint configured by the site administrator that speaks the OpenAI API protocol. Review the terms and privacy policy of your chosen provider.
+
+* **WordPress AI Services (wp-ai-services plugin)** — delegates to whichever provider is configured in that plugin. Review the terms and privacy policy of that provider.
+
+No AI API calls are made unless the site administrator has explicitly enabled AI features and configured a valid API key.
+
+= Amazee.ai (amazee.ai) =
+
+**When:** An administrator starts a trial or signs in via Settings > Scolta > Amazee.ai. On activation, if no API key is configured, the plugin may auto-provision trial credentials via Action Scheduler.
+**What is sent:** The administrator's email address (for trial/sign-in), and AI search queries and result excerpts when the Amazee.ai gateway is the active AI provider.
+**Service:** Amazee.ai, a privacy-respecting AI gateway. Credentials are stored encrypted (AES-256-CBC) in the WordPress options table.
+**Terms of Service:** https://amazee.ai/terms
+**Privacy Policy:** https://amazee.ai/privacy
 
 == About Tag1 Consulting ==
 

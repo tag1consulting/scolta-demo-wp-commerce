@@ -39,15 +39,20 @@ class Scolta_Shortcode {
 		$settings   = get_option( 'scolta_settings', array() );
 		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
 
-		// Warn developers who saved a custom output_dir ending in /pagefind — the PHP
-		// indexer always appends /pagefind itself, so this causes double-nesting.
-		if ( str_ends_with( wp_normalize_path( rtrim( $output_dir, '/' ) ), '/pagefind' ) ) {
-			_doing_it_wrong(
-				__CLASS__ . '::render',
-				'output_dir should not end in /pagefind. The PHP indexer appends /pagefind ' .
-				'automatically. Remove the suffix to avoid double-nested index directories.',
-				'1.0.0'
-			);
+		// Silently strip a trailing /pagefind — the PHP indexer appends it
+		// automatically, so including it in the setting causes double-nesting.
+		$normalized = wp_normalize_path( rtrim( $output_dir, '/' ) );
+		if ( str_ends_with( $normalized, '/pagefind' ) ) {
+			$output_dir = substr( $normalized, 0, -strlen( '/pagefind' ) );
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				_doing_it_wrong(
+					__CLASS__ . '::render',
+					'output_dir should not end in /pagefind. The PHP indexer appends /pagefind ' .
+					'automatically. Remove the suffix to avoid double-nested index directories.',
+					'1.0.0'
+				);
+			}
 		}
 
 		// The PHP indexer writes to {output_dir}/pagefind/ (atomic swap subdirectory).
@@ -81,13 +86,17 @@ class Scolta_Shortcode {
 		$pagefind_url = self::dir_to_url( $index_dir );
 
 		// Enqueue the bundled scolta.js and scolta.css (assets/ is committed to the repo).
+		// Cache-bust on the asset's own mtime, not SCOLTA_VERSION: the plugin version is a
+		// static constant that does not change between dev builds, so an unchanged ?ver= let
+		// HTTP caches keep serving stale JS/CSS after a deploy. filemtime changes whenever the
+		// shipped asset changes, forcing a refetch.
 		$scolta_js_path = SCOLTA_PLUGIN_DIR . 'assets/js/scolta.js';
 		if ( file_exists( $scolta_js_path ) ) {
 			wp_enqueue_script(
 				'scolta-search',
 				SCOLTA_PLUGIN_URL . 'assets/js/scolta.js',
 				array(),
-				SCOLTA_VERSION,
+				filemtime( $scolta_js_path ),
 				true // Load in footer.
 			);
 		}
@@ -98,7 +107,7 @@ class Scolta_Shortcode {
 				'scolta-search',
 				SCOLTA_PLUGIN_URL . 'assets/css/scolta.css',
 				array(),
-				SCOLTA_VERSION
+				filemtime( $scolta_css_path )
 			);
 		}
 
@@ -139,7 +148,14 @@ class Scolta_Shortcode {
 		);
 
 		// Output the container that scolta.js targets.
-		return '<div id="scolta-search"></div>';
+		$attribution = '';
+		if ( $config->showAttribution ) {
+			$attribution = '<p class="scolta-attribution">'
+				. esc_html__( 'Powered by Scolta', 'scolta-ai-search' )
+				. '</p>';
+		}
+
+		return '<div id="scolta-search"></div>' . $attribution;
 	}
 
 	/**
@@ -155,16 +171,21 @@ class Scolta_Shortcode {
 
 		// Uploads directory — the canonical location for plugin-written index files.
 		// Use wp_upload_dir() so offloaded uploads (S3, CDN) get the right base URL.
-		$upload_info = wp_upload_dir();
-		$uploads_dir = rtrim( $upload_info['basedir'], '/' );
-		$uploads_url = rtrim( $upload_info['baseurl'], '/' );
+		// Apply set_url_scheme() because wp_upload_dir()['baseurl'] inherits the raw
+		// siteurl option, which may be http:// on reverse-proxy HTTPS setups.
+		$upload_info    = wp_upload_dir();
+		$real_uploads   = realpath( $upload_info['basedir'] );
+		$uploads_base   = ! empty( $real_uploads ) ? $real_uploads : $upload_info['basedir'];
+		$uploads_dir    = rtrim( $uploads_base, '/' );
+		$uploads_url    = rtrim( $upload_info['baseurl'], '/' );
 		if ( str_starts_with( $dir_resolved, $uploads_dir ) ) {
 			$relative = substr( $dir_resolved, strlen( $uploads_dir ) );
-			return $uploads_url . $relative;
+			return set_url_scheme( $uploads_url . $relative );
 		}
 
 		// wp-content directory (non-uploads plugin/theme files).
-		$content_dir = rtrim( WP_CONTENT_DIR, '/' );
+		$real_content = realpath( WP_CONTENT_DIR );
+		$content_dir  = rtrim( ! empty( $real_content ) ? $real_content : WP_CONTENT_DIR, '/' );
 		if ( str_starts_with( $dir_resolved, $content_dir ) ) {
 			$relative = substr( $dir_resolved, strlen( $content_dir ) );
 			return content_url( $relative );

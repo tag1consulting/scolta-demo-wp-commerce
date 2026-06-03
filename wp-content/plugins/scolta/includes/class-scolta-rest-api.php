@@ -201,8 +201,9 @@ class Scolta_Rest_Api {
 
 		$count = (int) get_transient( $key );
 		if ( $count >= $limit ) {
+			$message  = __( 'Too many requests. Please slow down.', 'scolta-ai-search' );
 			$response = new \WP_REST_Response(
-				array( 'error' => __( 'Too many requests. Please slow down.', 'scolta' ) ),
+				array( 'error' => $message ),
 				429
 			);
 			$response->header( 'Retry-After', '60' );
@@ -366,17 +367,64 @@ class Scolta_Rest_Api {
 	 * Returns service status for monitoring tools.
 	 */
 	public static function handle_health( \WP_REST_Request $request ): \WP_REST_Response {
-		$settings = get_option( 'scolta_settings', array() );
-		$ai       = \Scolta_Ai_Service::from_options();
+		$settings   = get_option( 'scolta_settings', array() );
+		$output_dir = $settings['output_dir'] ?? scolta_default_output_dir();
+		$ai         = \Scolta_Ai_Service::from_options();
 
 		$checker = new \Tag1\Scolta\Health\HealthChecker(
 			config: $ai->get_config(),
-			indexOutputDir: $settings['output_dir'] ?? scolta_default_output_dir(),
+			indexOutputDir: $output_dir,
 			pagefindBinaryPath: $settings['pagefind_binary'] ?? null,
-			projectDir: ABSPATH,
+			projectDir: SCOLTA_PLUGIN_DIR,
 		);
 
-		return new \WP_REST_Response( $checker->check(), 200 );
+		$result = $checker->check();
+
+		// Index detail enrichment: fragment count and last-build timestamp.
+		if ( $result['index_exists'] ) {
+			$index_file = $output_dir . '/pagefind/pagefind.js';
+			$mtime      = file_exists( $index_file ) ? filemtime( $index_file ) : false;
+			$glob_result = glob( $output_dir . '/pagefind/fragment/*' );
+			$fragments   = false !== $glob_result ? $glob_result : array();
+
+			$result['index'] = array(
+				'built'      => true,
+				'fragments'  => count( $fragments ),
+				'last_build' => $mtime ? gmdate( 'c', $mtime ) : null,
+			);
+
+			$integrity = array(
+				'valid'  => true,
+				'issues' => array(),
+			);
+
+			$js_size = file_exists( $index_file ) ? filesize( $index_file ) : false;
+			if ( false === $js_size || 0 === $js_size ) {
+				$integrity['valid']    = false;
+				$integrity['issues'][] = 'pagefind.js is empty or unreadable';
+			}
+
+			if ( count( $fragments ) > 0 ) {
+				$frag_size = filesize( $fragments[0] );
+				if ( false === $frag_size || 0 === $frag_size ) {
+					$integrity['valid']    = false;
+					$integrity['issues'][] = 'Fragment file is empty or corrupt';
+				}
+			} else {
+				$integrity['valid']    = false;
+				$integrity['issues'][] = 'No fragment files found';
+			}
+
+			$result['index']['integrity'] = $integrity;
+
+			if ( ! $integrity['valid'] ) {
+				$result['status'] = 'degraded';
+			}
+		} else {
+			$result['index'] = array( 'built' => false );
+		}
+
+		return new \WP_REST_Response( $result, 200 );
 	}
 
 	/**
@@ -396,7 +444,7 @@ class Scolta_Rest_Api {
 			delete_transient( Scolta_Rebuild_Scheduler::LOCK_KEY );
 			$status = array(
 				'status'  => 'idle',
-				'message' => __( 'Previous rebuild timed out. Lock cleared.', 'scolta' ),
+				'message' => __( 'Previous rebuild timed out. Lock cleared.', 'scolta-ai-search' ),
 			);
 			update_option( 'scolta_build_status', $status );
 		}
@@ -414,7 +462,7 @@ class Scolta_Rest_Api {
 	public static function handle_rebuild_now( \WP_REST_Request $request ): \WP_REST_Response {
 		if ( get_transient( Scolta_Rebuild_Scheduler::LOCK_KEY ) ) {
 			return new \WP_REST_Response(
-				array( 'error' => __( 'Rebuild already in progress.', 'scolta' ) ),
+				array( 'error' => __( 'Rebuild already in progress.', 'scolta-ai-search' ) ),
 				409
 			);
 		}
@@ -422,7 +470,7 @@ class Scolta_Rest_Api {
 		$force = $request->get_param( 'force' ) ?? false;
 		Scolta_Rebuild_Scheduler::start_rebuild( (bool) $force );
 		return new \WP_REST_Response(
-			array( 'message' => __( 'Rebuild scheduled.', 'scolta' ) ),
+			array( 'message' => __( 'Rebuild scheduled.', 'scolta-ai-search' ) ),
 			200
 		);
 	}

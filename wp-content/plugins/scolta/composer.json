@@ -1,6 +1,6 @@
 {
     "name": "tag1/scolta-wp",
-    "version": "1.0.0-dev",
+    "version": "1.0.3",
     "description": "Scolta AI Search for WordPress \u2014 zero-infrastructure AI-powered search with Pagefind",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -31,7 +31,7 @@
             "[ -f vendor/tag1/scolta-php/assets/js/scolta.js ] && cp vendor/tag1/scolta-php/assets/js/scolta.js assets/js/scolta.js || true"
         ]
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": [
         {
