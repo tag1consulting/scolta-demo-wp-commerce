@@ -3,7 +3,7 @@
  * Plugin Name:       Scolta AI Search
  * Plugin URI:        https://www.tag1.com/scolta
  * Description:       Zero-infrastructure AI search with Pagefind, query expansion, summarization.
- * Version:       1.0.3
+ * Version:       1.0.4
  * Requires at least: 6.1
  * Requires PHP:      8.1
  * Author:            Tag1 Consulting
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCOLTA_VERSION', '1.0.3' );
+define( 'SCOLTA_VERSION', '1.0.4' );
 define( 'SCOLTA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SCOLTA_PLUGIN_FILE', __FILE__ );
@@ -151,6 +151,7 @@ function scolta_activate(): void {
 		'expand_primary_weight'      => 0.5,
 		'cross_list_bonus'           => 0.05,
 		'expand_subword_max_frequency' => 0.05,
+		'expansion_combine_mode'     => 'relevance_union',
 		// Display.
 		'excerpt_length'             => 300,
 		'results_per_page'           => 10,

@@ -223,10 +223,11 @@ class Scolta_Admin {
 		add_settings_field( 'recency_penalty_after_days', __( 'Recency Penalty After (days)', 'scolta-ai-search' ), array( self::class, 'render_recency_penalty_days_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'recency_max_penalty', __( 'Recency Max Penalty', 'scolta-ai-search' ), array( self::class, 'render_recency_max_penalty_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'expand_primary_weight', __( 'Expand Primary Weight', 'scolta-ai-search' ), array( self::class, 'render_expand_weight_field' ), 'scolta', 'scolta_scoring_section' );
-		add_settings_field( 'expand_subword_max_frequency', __( 'Sub-word Max Frequency', 'scolta-ai-search' ), array( self::class, 'render_subword_freq_field' ), 'scolta', 'scolta_scoring_section' );
+		add_settings_field( 'expand_subword_max_frequency', __( 'Search Breadth (advanced)', 'scolta-ai-search' ), array( self::class, 'render_subword_freq_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'language', __( 'Scoring Language', 'scolta-ai-search' ), array( self::class, 'render_language_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'custom_stop_words', __( 'Custom Stop Words', 'scolta-ai-search' ), array( self::class, 'render_custom_stop_words_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'expand_subword_deny_list', __( 'Sub-word Guard Denylist', 'scolta-ai-search' ), array( self::class, 'render_expand_subword_deny_list_field' ), 'scolta', 'scolta_scoring_section' );
+		add_settings_field( 'expansion_combine_mode', __( 'Expansion Combine Mode', 'scolta-ai-search' ), array( self::class, 'render_expansion_combine_mode_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'recency_strategy', __( 'Recency Strategy', 'scolta-ai-search' ), array( self::class, 'render_recency_strategy_field' ), 'scolta', 'scolta_scoring_section' );
 		add_settings_field( 'recency_curve', __( 'Custom Recency Curve', 'scolta-ai-search' ), array( self::class, 'render_recency_curve_field' ), 'scolta', 'scolta_scoring_section' );
 
@@ -801,7 +802,7 @@ class Scolta_Admin {
 		$value = self::get_setting( 'expand_subword_max_frequency', 0.05 );
 		?>
 		<input type="number" name="scolta_settings[expand_subword_max_frequency]" value="<?php echo esc_attr( $value ); ?>" min="0" max="1" step="0.01" class="small-text" />
-		<p class="description"><?php esc_html_e( 'Max corpus frequency for a multi-word expansion term\'s constituent word to be searched on its own. Broadens recall while blocking high-frequency noise. 0 disables; 1 searches every sub-word. Default: 0.05', 'scolta-ai-search' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Advanced: how aggressively multi-word searches broaden. Higher returns more results but can pull in loosely-related matches; lower keeps results tight. Most sites should pick a Site Type preset above instead of changing this by hand. Default: 0.05 (the Recipe & Content Catalog preset raises it to 0.10).', 'scolta-ai-search' ); ?></p>
 		<?php
 	}
 
@@ -878,6 +879,28 @@ class Scolta_Admin {
 		?>
 		<input type="text" name="scolta_settings[expand_subword_deny_list]" value="<?php echo esc_attr( $display ); ?>" class="regular-text" />
 		<p class="description"><?php esc_html_e( 'Comma-separated words that are never auto-exempted from the sub-word frequency guard, even when typed (e.g. a generic word like "hot" on a recipe site). Unlike custom stop words, these stay searchable and scorable. Leave empty unless a typed common word floods results.', 'scolta-ai-search' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Render the expansion combine mode field.
+	 *
+	 * Controls how a multi-term query expansion's per-sub-query result sets are
+	 * combined into the AI-summary candidate set. "relevance_union" (default)
+	 * keeps the historical behavior; "round_robin" deals the top few from each
+	 * sub-query so the summarizer sees breadth across distinct sub-topics
+	 * (scolta-php#170). The visible result list stays relevance-sorted either way.
+	 *
+	 * @return void
+	 */
+	public static function render_expansion_combine_mode_field(): void {
+		$value = self::get_setting( 'expansion_combine_mode', 'relevance_union' );
+		?>
+		<select name="scolta_settings[expansion_combine_mode]" id="scolta_expansion_combine_mode">
+			<option value="relevance_union" <?php selected( $value, 'relevance_union' ); ?>><?php esc_html_e( 'Relevance union (default)', 'scolta-ai-search' ); ?></option>
+			<option value="round_robin" <?php selected( $value, 'round_robin' ); ?>><?php esc_html_e( 'Round-robin (breadth across sub-queries)', 'scolta-ai-search' ); ?></option>
+		</select>
+		<p class="description"><?php esc_html_e( 'How a multi-term query expansion combines its per-sub-query results into the AI-summary candidate set. Relevance union keeps the historical behavior. Round-robin deals the top few from each sub-query so the summary sees breadth across distinct sub-topics. The visible result list stays relevance-sorted either way. Default: Relevance union.', 'scolta-ai-search' ); ?></p>
 		<?php
 	}
 
@@ -1230,6 +1253,10 @@ class Scolta_Admin {
 				)
 			)
 		);
+
+		$clean['expansion_combine_mode'] = in_array( $input['expansion_combine_mode'] ?? '', array( 'relevance_union', 'round_robin' ), true )
+			? $input['expansion_combine_mode']
+			: 'relevance_union';
 
 		$clean['recency_strategy'] = in_array( $input['recency_strategy'] ?? '', array( 'exponential', 'linear', 'step', 'none', 'custom' ), true )
 			? $input['recency_strategy']

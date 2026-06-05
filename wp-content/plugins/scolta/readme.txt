@@ -5,7 +5,7 @@ Tags: search, ai, pagefind, artificial intelligence, semantic search
 Requires at least: 6.1
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable Tag: 1.0.3
+Stable Tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,10 @@ Yes. WooCommerce product metadata (price, SKU, stock status, categories) is auto
 = How do I keep the search index up to date? =
 
 Install [Action Scheduler](https://actionscheduler.org/) and enable **auto_rebuild** in Settings > Scolta. The plugin will automatically queue a rebuild whenever content is saved. WooCommerce sites already have Action Scheduler installed.
+
+= Why am I getting fewer search results than before? =
+
+Scolta defaults to a conservative search breadth so generic words don't flood your results. On a recipe, product, or catalog site, that can hide useful domain words you actually want to match. Go to **Settings > Scolta > Site Type** and choose the **Recipe & Content Catalog** preset, then save and run `wp scolta build`. The preset widens the search breadth and tunes ranking for catalog-style content. See the "Tuning search breadth" section of the plugin README for the full guide.
 
 == Screenshots ==
 

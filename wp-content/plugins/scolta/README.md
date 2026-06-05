@@ -184,23 +184,46 @@ $settings['ai_languages'] = ['en', 'fr', 'de'];
 update_option('scolta_settings', $settings);
 ```
 
+### Tuning search breadth
+
+**Getting fewer results than you expect on a recipe, product, or catalog site?** Go to **Settings > Scolta > Site Type** and choose the **Recipe & Content Catalog** preset, then save and rebuild your index (`wp scolta build`).
+
+Scolta defaults to a conservative search breadth so generic words ("easy", "quick", "best") don't flood your results. On a recipe or catalog site, the useful domain words you actually want to match — ingredients, techniques, product attributes — are common enough that the default can hide them. The **Recipe & Content Catalog** preset widens the breadth (and tunes a handful of other ranking settings) so those searches return the fuller set of matches you'd expect.
+
+Pick the **Site Type** that matches your site and Scolta sets sensible defaults for you:
+
+| Your site | Preset |
+| --------- | ------ |
+| Recipes, product or content catalogs | Recipe & Content Catalog |
+| Docs, knowledge bases, encyclopedias, references | Documentation & Reference |
+| Online stores | E-commerce & Product Store |
+| Blogs and editorial sites | Blog & Editorial |
+| News sites | Start from Scratch, then tune recency |
+
+You rarely need to touch individual numbers — the preset is the recommended path, and any value you change by hand in the **Scoring** section still overrides the preset. The one advanced knob worth knowing is **Search Breadth** (`expand_subword_max_frequency`): higher returns more results but can pull in loosely-related matches; lower keeps results tight. The Recipe & Content Catalog preset already raises it from `0.05` to `0.10`.
+
+For the evidence behind each preset — the scoring sweeps and the per-parameter data — see [scolta-php's `docs/TUNING.md`](https://github.com/tag1consulting/scolta-php/blob/main/docs/TUNING.md).
+
 ### Search Scoring
 
 Configure at **Settings > Scolta > Scoring**.
 
-| Setting | Option key | Default | Description |
-| ------- | ---------- | ------- | ----------- |
-| Title match boost | `title_match_boost` | `1.0` | Boost when query terms appear in the title |
-| Title all-terms multiplier | `title_all_terms_multiplier` | `1.5` | Extra multiplier when ALL terms match the title |
-| Content match boost | `content_match_boost` | `0.4` | Boost for query term matches in body/excerpt |
-| Expand primary weight | `expand_primary_weight` | `0.5` | Weight for original query results vs AI-expanded results (higher = original query dominates; raise to 0.7+ if you want literal keyword matches to win) |
-| Recency strategy | `recency_strategy` | `exponential` | Decay function: `exponential`, `linear`, `step`, `none`, or `custom` |
-| Recency boost max | `recency_boost_max` | `0.5` | Maximum positive boost for very recent content |
-| Recency half-life days | `recency_half_life_days` | `365` | Days until recency boost halves |
-| Recency penalty after days | `recency_penalty_after_days` | `1825` | Age before content gets a penalty (~5 years) |
-| Recency max penalty | `recency_max_penalty` | `0.3` | Maximum negative penalty for very old content |
-| Language | `language` | `en` | ISO 639-1 code for stop word filtering |
-| Custom stop words | `custom_stop_words` | `[]` | Extra stop words beyond the language's built-in list |
+| Setting | Option key | Description |
+| ------- | ---------- | ----------- |
+| Title match boost | `title_match_boost` | Boost when query terms appear in the title |
+| Title all-terms multiplier | `title_all_terms_multiplier` | Extra multiplier when ALL terms match the title |
+| Content match boost | `content_match_boost` | Boost for query term matches in body/excerpt |
+| Expand primary weight | `expand_primary_weight` | Weight for original query results vs AI-expanded results (higher = original query dominates; raise to 0.7+ if you want literal keyword matches to win) |
+| Recency strategy | `recency_strategy` | Decay function: `exponential`, `linear`, `step`, `none`, or `custom` |
+| Recency boost max | `recency_boost_max` | Maximum positive boost for very recent content |
+| Recency half-life days | `recency_half_life_days` | Days until recency boost halves |
+| Recency penalty after days | `recency_penalty_after_days` | Age before content gets a penalty (~5 years) |
+| Recency max penalty | `recency_max_penalty` | Maximum negative penalty for very old content |
+| Language | `language` | ISO 639-1 code for stop word filtering |
+| Custom stop words | `custom_stop_words` | Extra stop words beyond the language's built-in list |
+| Expansion combine mode | `expansion_combine_mode` | How a multi-term query expansion combines its per-sub-query results into the AI-summary candidate set: `relevance_union` (historical behavior) or `round_robin` (deal the top few from each sub-query so the summary sees breadth across sub-topics). Preset-defaulted — the Recipe & Content Catalog, Blog & Editorial, and E-commerce presets default it to `round_robin`; the others use `relevance_union` — and any value you set by hand overrides the preset. The visible result list stays relevance-sorted either way. |
+
+Defaults and the full reference: [scolta-php `docs/CONFIG_REFERENCE.md`](https://github.com/tag1consulting/scolta-php/blob/main/docs/CONFIG_REFERENCE.md).
 
 **News site** (recency matters a lot):
 
@@ -237,11 +260,13 @@ update_option('scolta_settings', $settings);
 
 Configure at **Settings > Scolta > Display**.
 
-| Setting | Option key | Default | Description |
-| ------- | ---------- | ------- | ----------- |
-| Excerpt length | `excerpt_length` | `300` | Characters shown in result excerpts |
-| Results per page | `results_per_page` | `10` | Results shown per page |
-| Max Pagefind results | `max_pagefind_results` | `50` | Total results fetched from index before scoring |
+| Setting | Option key | Description |
+| ------- | ---------- | ----------- |
+| Excerpt length | `excerpt_length` | Characters shown in result excerpts |
+| Results per page | `results_per_page` | Results shown per page |
+| Max Pagefind results | `max_pagefind_results` | Total results fetched from index before scoring |
+
+Defaults and the full reference: [scolta-php `docs/CONFIG_REFERENCE.md`](https://github.com/tag1consulting/scolta-php/blob/main/docs/CONFIG_REFERENCE.md).
 
 ### Site Identity
 
