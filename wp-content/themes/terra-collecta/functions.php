@@ -223,3 +223,208 @@ add_filter( 'woocommerce_default_catalog_orderby', function() {
 add_filter( 'woocommerce_catalog_orderby', function( $options ) {
 	return array_merge( array( 'rand' => 'Surprise Me' ), $options );
 } );
+
+/* ---------------------------------------------------------------
+   Rich Scolta search result cards
+
+   Two halves. The filter below puts a product's thumbnail and its
+   display price into the search index, next to the price, stock and
+   category metadata the Scolta plugin already writes for a WooCommerce
+   product. The assets loaded under it paint a card from that metadata,
+   so a result list of twelve products costs zero extra server calls.
+   --------------------------------------------------------------- */
+
+/**
+ * Image size the search result card's thumbnail uses.
+ *
+ * woocommerce_thumbnail is the 300x300 crop the shop grid already
+ * generates for every product, so the card introduces no new derivative
+ * and every image it asks for is already on disk. It is roughly twice
+ * the 140px box the card paints, which keeps it sharp on a 2x display.
+ */
+const TC_SCOLTA_CARD_IMAGE_SIZE = 'woocommerce_thumbnail';
+
+/**
+ * Adds the per-product data the search result cards paint.
+ *
+ * The Scolta plugin's own WooCommerce mapping already writes regular_price,
+ * sale_price, sku, stock_status and product_cat into the item's metadata,
+ * and price into sortable. Two things it cannot know are added here: which
+ * image to show, and how this shop wants a price written.
+ *
+ * Metadata costs only the bytes of its own keys in each fragment, unlike
+ * sortable, which writes a corpus-wide pf_meta entry. The keys "title" and
+ * "date" are deliberately avoided: they lose to the built-in values on a
+ * collision.
+ *
+ * @param \Tag1\Scolta\Export\ContentItem $item The item about to be indexed.
+ * @param \WP_Post                        $post The post it came from.
+ * @return \Tag1\Scolta\Export\ContentItem The item, possibly with metadata added.
+ */
+add_filter( 'scolta_content_item', 'tc_scolta_card_metadata', 10, 2 );
+function tc_scolta_card_metadata( $item, $post ) {
+	if ( 'product' !== $post->post_type ) {
+		return $item;
+	}
+
+	$metadata = $item->metadata;
+
+	$image = tc_scolta_card_image( $post->ID );
+	if ( null !== $image ) {
+		$metadata['image'] = $image['url'];
+		if ( '' !== $image['alt'] ) {
+			$metadata['image_alt'] = $image['alt'];
+		}
+	}
+
+	$price = tc_scolta_card_price( $post->ID );
+	if ( array() !== $price ) {
+		$metadata = array_merge( $metadata, $price );
+	}
+
+	if ( $metadata === $item->metadata ) {
+		return $item;
+	}
+
+	return $item->cloneWith( array( 'metadata' => $metadata ) );
+}
+
+/**
+ * Resolves a product's featured image to a card thumbnail URL and alt text.
+ *
+ * The URL is made root-relative. WordPress stores an absolute one built from
+ * home_url(), and this site's stored home_url is https while DDEV also serves
+ * it over http, so an absolute URL in the index means every card on a plain
+ * http visit requests a different origin than the page it is on. Root-relative
+ * sidesteps that and makes the committed index portable between the DDEV site
+ * and the container image, which do not share a hostname either.
+ *
+ * @param int $post_id The product.
+ * @return array{url: string, alt: string}|null Thumbnail data, or null when the
+ *   product has no usable featured image. Null simply means the fragment
+ *   carries no "image" key and the card renders without a thumbnail.
+ */
+function tc_scolta_card_image( int $post_id ): ?array {
+	$attachment_id = get_post_thumbnail_id( $post_id );
+	if ( ! $attachment_id ) {
+		return null;
+	}
+
+	$src = wp_get_attachment_image_src( $attachment_id, TC_SCOLTA_CARD_IMAGE_SIZE );
+	if ( ! is_array( $src ) || empty( $src[0] ) ) {
+		return null;
+	}
+
+	$url  = (string) $src[0];
+	$home = wp_parse_url( home_url(), PHP_URL_HOST );
+	$path = wp_parse_url( $url, PHP_URL_PATH );
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+	if ( is_string( $path ) && '' !== $path && ( null === $host || $host === $home ) ) {
+		$url = $path;
+	}
+
+	return array(
+		'url' => $url,
+		'alt' => trim( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ),
+	);
+}
+
+/**
+ * Formats a product's price the way this shop writes prices.
+ *
+ * Formatted here rather than in the browser because the currency symbol, its
+ * position, the thousands separator and the decimal count are all WooCommerce
+ * settings, and a renderer that reinvented them would drift from the price on
+ * the product page the card links to. wc_price() returns markup, so the
+ * amounts go through wc_format_decimal() and the currency symbol is decoded
+ * from the entity WooCommerce stores it as; the renderer escapes both.
+ *
+ * A sale writes a second key rather than a marked-up string, so the card can
+ * strike the old price rather than print "was" inside a sentence. No product
+ * in the current catalogue is on sale, so price_was is dormant on this data
+ * and correct the moment one is.
+ *
+ * @param int $post_id The product.
+ * @return array<string, string> Zero, one or two metadata keys.
+ */
+function tc_scolta_card_price( int $post_id ): array {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+	$product = wc_get_product( $post_id );
+	if ( ! $product ) {
+		return array();
+	}
+
+	$symbol = html_entity_decode( get_woocommerce_currency_symbol(), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$format = static function ( $amount ) use ( $symbol ): string {
+		if ( '' === $amount || null === $amount ) {
+			return '';
+		}
+		$number = wc_price( $amount, array( 'currency' => get_woocommerce_currency() ) );
+		// wc_price() is markup and carries the symbol as an entity; strip both
+		// and rebuild the plain string the renderer will escape.
+		$plain = trim( html_entity_decode( wp_strip_all_tags( $number ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		return '' !== $plain ? $plain : $symbol . wc_format_decimal( $amount, wc_get_price_decimals() );
+	};
+
+	$out   = array();
+	$price = $format( $product->get_price() );
+	if ( '' !== $price ) {
+		$out['price_display'] = $price;
+	}
+	if ( $product->is_on_sale() ) {
+		$was = $format( $product->get_regular_price() );
+		if ( '' !== $was && $was !== $price ) {
+			$out['price_was'] = $was;
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * Loads the result-card renderer and its stylesheet.
+ *
+ * Hooked to wp_footer rather than wp_enqueue_scripts, and gated on the Scolta
+ * handle actually being enqueued. The plugin's shortcode enqueues scolta.js
+ * while the page content renders, which is after wp_enqueue_scripts has run,
+ * so at that earlier hook the handle does not exist yet and a dependency on it
+ * would be silently dropped. By wp_footer it is registered, the dependency
+ * takes, and both the script and the stylesheet land after the bundle's own —
+ * which is what the renderer needs (window.Scolta must exist when this file
+ * executes) and what the stylesheet needs (it redeclares Scolta's documented
+ * custom properties at the same specificity, so it has to be second).
+ *
+ * Priority 5 puts it before wp_print_footer_scripts at 20.
+ */
+add_action( 'wp_footer', 'tc_scolta_rich_results_assets', 5 );
+function tc_scolta_rich_results_assets(): void {
+	if ( ! wp_script_is( 'scolta-search', 'enqueued' ) ) {
+		return;
+	}
+
+	$dir = get_stylesheet_directory();
+	$uri = get_stylesheet_directory_uri();
+
+	$js = $dir . '/js/scolta-rich-results.js';
+	if ( file_exists( $js ) ) {
+		wp_enqueue_script(
+			'tc-scolta-rich-results',
+			$uri . '/js/scolta-rich-results.js',
+			array( 'scolta-search' ),
+			(string) filemtime( $js ),
+			true
+		);
+	}
+
+	$css = $dir . '/css/scolta-rich-results.css';
+	if ( file_exists( $css ) ) {
+		wp_enqueue_style(
+			'tc-scolta-rich-results',
+			$uri . '/css/scolta-rich-results.css',
+			array( 'scolta-search' ),
+			(string) filemtime( $css )
+		);
+	}
+}
