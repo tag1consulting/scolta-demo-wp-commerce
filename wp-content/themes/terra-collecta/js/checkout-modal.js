@@ -46,9 +46,18 @@
       });
     }
 
-    // Close on Escape key
+    // Close on Escape key.
+    //
+    // Only when the modal is actually open. This listener is on the document
+    // and the script loads on every page, so an unguarded version treated
+    // Escape anywhere on the site as "close the checkout modal" and ran
+    // hideModal(), whose second half redirects to the shop unconditionally.
+    // Pressing Escape on the search page therefore threw the visitor off it —
+    // and Escape is the standard gesture for dismissing a suggestions
+    // dropdown, so the search-as-you-type box made that reachable by accident
+    // rather than only by a stray keystroke.
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' || e.keyCode === 27) {
+      if ((e.key === 'Escape' || e.keyCode === 27) && overlay && overlay.classList.contains('active')) {
         hideModal();
       }
     });

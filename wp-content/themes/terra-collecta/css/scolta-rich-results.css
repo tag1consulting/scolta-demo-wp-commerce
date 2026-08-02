@@ -1,0 +1,296 @@
+/**
+ * Terra Collecta styling for Scolta's result cards and search-as-you-type
+ * dropdown.
+ *
+ * Loaded after the plugin's scolta.css, which is never edited. Two techniques
+ * only: override the documented custom properties, and style the theme's own
+ * tc-* classes on the markup its renderers emit. No selector here is more
+ * specific than one class.
+ *
+ * The card keeps Scolta's scolta-result-card, scolta-result-title and
+ * scolta-result-excerpt classes, so everything style.css already gives a
+ * result still applies and this file adds only the layout the thumbnail, the
+ * price and the badges need.
+ */
+
+/* The seven documented search-as-you-type knobs, nothing more. scolta.css
+   declares these on :root; this file loads after it, so a same-specificity
+   redeclaration is all it takes. The rest of Scolta's palette is already
+   retuned by style.css. */
+:root {
+  --scolta-sayt-bg: var(--tc-card-bg);
+  --scolta-sayt-border: var(--tc-border);
+  --scolta-sayt-shadow: var(--tc-shadow);
+  --scolta-sayt-radius: var(--tc-radius-lg);
+  --scolta-sayt-max-height: 26rem;
+  --scolta-sayt-active-bg: var(--tc-bg-alt);
+  --scolta-sayt-z-index: 60;
+}
+
+/* --------------------------------------------------------------------------
+ * Product card
+ * ----------------------------------------------------------------------- */
+
+.tc-result {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+}
+
+/* Fixed box, so the card's height is settled before the photograph arrives
+   and nothing below it moves when it does. */
+.tc-result__thumb {
+  flex: 0 0 auto;
+  display: block;
+  width: 140px;
+  height: 140px;
+  overflow: hidden;
+  border: 1px solid var(--tc-border);
+  border-radius: var(--tc-radius);
+  background: var(--tc-bg-alt);
+}
+
+.tc-result__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A photograph that fails to load takes its own box with it rather than
+   leaving a hole; the rest of the card is already laid out as text, so
+   nothing else moves. */
+.tc-result--thumb-failed .tc-result__thumb {
+  display: none;
+}
+
+.tc-result__body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.tc-result__title {
+  font-family: var(--tc-font-heading);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* scolta.css highlights an excerpt's <mark> and leaves a title's to the
+   browser default, so a hit was the theme's soft cream in the body and vivid
+   browser yellow in the heading right above it. Same treatment in both places,
+   at one class deep. */
+.tc-result__title mark {
+  background: var(--scolta-highlight, #fff3cd);
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 2px;
+}
+
+.tc-result__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0.5rem;
+}
+
+/* The price is the fact a shopper scans for, so it is set as a price and not
+   as one more chip in the badge row. */
+.tc-result__price {
+  font-family: var(--tc-font-body);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--tc-text);
+  white-space: nowrap;
+}
+
+.tc-result__price-was {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--tc-text-muted);
+}
+
+.tc-result__price-now--sale {
+  color: var(--tc-accent-dark);
+}
+
+.tc-result__badge {
+  font-family: var(--tc-font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.16rem 0.5rem;
+  border: 1px solid var(--tc-border);
+  border-radius: 3px;
+  background: var(--tc-badge-bg);
+  color: var(--tc-text-muted);
+  white-space: nowrap;
+}
+
+/* Out of stock is an exception, not a status line, so it is the one badge
+   that changes colour. The word carries the meaning either way. */
+.tc-result__badge--oos {
+  border-color: var(--tc-accent);
+  background: rgba(184, 112, 75, 0.12);
+  color: var(--tc-accent-dark);
+}
+
+.tc-result__excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+}
+
+@media (max-width: 560px) {
+  .tc-result {
+    gap: 0.8rem;
+  }
+
+  .tc-result__thumb {
+    width: 84px;
+    height: 84px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Search-as-you-type dropdown
+ *
+ * Layout and rhythm only. The dropdown stays absolutely positioned inside
+ * .scolta-search-input-wrap, so opening and updating it shifts nothing.
+ * ----------------------------------------------------------------------- */
+
+.scolta-sayt {
+  font-family: var(--tc-font-body);
+  padding: 0.25rem 0;
+}
+
+.scolta-sayt-option {
+  padding: 0.5rem 0.85rem;
+  border-bottom: none;
+  border-left: 3px solid transparent;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.scolta-sayt-option:hover {
+  background: var(--tc-bg);
+}
+
+.scolta-sayt-option-active {
+  border-left-color: var(--tc-accent);
+}
+
+.scolta-sayt-kind {
+  color: var(--tc-accent);
+  font-size: 0.95rem;
+}
+
+.scolta-sayt-title {
+  font-family: var(--tc-font-heading);
+  font-size: 0.98rem;
+  color: var(--tc-text);
+}
+
+/* A recent search is history, not a product: body face and italic, so the two
+   kinds of row are told apart without reading the glyph. */
+.scolta-sayt-option-recent .scolta-sayt-kind {
+  color: var(--tc-text-muted);
+}
+
+.scolta-sayt-option-recent .scolta-sayt-title {
+  font-family: var(--tc-font-body);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.scolta-sayt-excerpt {
+  font-size: 0.8rem;
+  color: var(--tc-text-muted);
+  margin-top: 0.1rem;
+}
+
+/* --------------------------------------------------------------------------
+ * Thumbnailed suggestion row
+ *
+ * Inner markup emitted by the suggestion renderer in
+ * js/scolta-rich-results.js for title suggestions. The option element around
+ * it stays the bundle's, so the rules below never reach past the row's inside.
+ *
+ * Title and excerpt carry the scolta-* class as well as the tc-* one, so they
+ * inherit the typography set above and these rules add only layout. Same
+ * specificity, resolved by source order — this block is last.
+ * ----------------------------------------------------------------------- */
+
+.tc-sayt {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Fixed box, sized before the image arrives, so a row settles its height at
+   render and the rows under it never move as photographs load. */
+.tc-sayt__thumb {
+  flex: 0 0 auto;
+  display: block;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--tc-border);
+  border-radius: 4px;
+  background: var(--tc-bg-alt);
+}
+
+.tc-sayt__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Sized, not drawn: a suggestion with no photograph keeps the box so every
+   row's title starts on the same line, without painting an empty square. */
+.tc-sayt__thumb--empty {
+  border-color: transparent;
+  background: none;
+}
+
+.tc-sayt__text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* One line each, ellipsised. A suggestion is a pointer, not a summary, and a
+   row that wrapped would resize the dropdown on every keystroke. */
+.tc-sayt__title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Overrides the glyph gutter scolta.css gives an excerpt: in this row the
+   thumbnail is the gutter, and the text column is already indented. */
+.tc-sayt__excerpt {
+  display: block;
+  margin-top: 0.05rem;
+  margin-left: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Right-aligned and out of the text column's flow, so a long product name
+   ellipsises against the price rather than pushing it off the row. */
+.tc-sayt__price {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tc-text);
+  white-space: nowrap;
+}
