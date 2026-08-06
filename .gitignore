@@ -2,6 +2,12 @@
 wp-config-local.php
 wp-config-sample.php
 error_log
+
+# ddev rewrites these on every start (they carry the #ddev-generated marker),
+# so tracking them makes the tree dirty after any local ddev run. The container
+# image supplies its own config via wp-config-container.php (see Dockerfile).
+wp-config.php
+wp-config-ddev.php
 debug.log
 *.log
 
